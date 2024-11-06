@@ -1,7 +1,6 @@
 <script setup>
 import { ref } from 'vue';
 import MapWasher from './MapWasher.vue';
-import { bus } from '@/bus';
 
 
 const props=defineProps({
