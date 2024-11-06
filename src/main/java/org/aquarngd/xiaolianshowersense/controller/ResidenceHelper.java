@@ -1,8 +1,8 @@
-package org.aquarngd.xiaolianwebhelper.controller;
+package org.aquarngd.xiaolianshowersense.controller;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import org.aquarngd.xiaolianwebhelper.data.ResidenceController;
+import org.aquarngd.xiaolianshowersense.data.ResidenceController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;

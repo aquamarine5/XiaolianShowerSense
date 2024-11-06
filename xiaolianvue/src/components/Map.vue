@@ -1,23 +1,15 @@
 <script setup>
-import { bus } from '@/bus';
-import axios from 'axios';
 import MapRoad from './MapRoad.vue';
+import wnetwork from '@/wnetwork';
 
 var isShowMap=defineModel('isShowMap')
 var mapData=[]
 isShowMap.value=false
-axios.get("http://47.96.24.132/api/map?id="+sessionStorage.getItem("residenceId"))
+wnetwork.get("/api/map?id="+sessionStorage.getItem("residenceId"))
     .then(response=>{
         isShowMap.value=response.data.isShowMap
         mapData=response.data.mapData
     })
-bus.$on('getData',(out)=>{
-    if(!isShowMap) return;
-})
-
-bus.$on('refreshData',(devicesList)=>{
-    if(!isShowMap) return;
-})
 </script>
 
 <template>
@@ -30,3 +22,13 @@ bus.$on('refreshData',(devicesList)=>{
         </div>
     </div>
 </template>
+
+<script>
+export default {
+    methods:{
+        changeResidence(){
+
+        }
+    }
+}
+</script>

@@ -1,12 +1,10 @@
 <script setup lang="js">
-import { ElIcon } from 'element-plus';
+import LineMdEmojiSmileWinkTwotone from '~icons/line-md/emoji-smile-wink-twotone?width=28px&height=28px';
 </script>
 
 <template>
     <div class="introduction_bg">
-        <ElIcon size="28" color="white" class="introduction_icon">
-            <Opportunity/>
-        </ElIcon>
+        <LineMdEmojiSmileWinkTwotone class="introduction_icon"/>
         <div class="introduction_container">
             <div class="introduction_title">
                 这是什么？

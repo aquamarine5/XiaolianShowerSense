@@ -1,4 +1,4 @@
-package org.aquarngd.xiaolianwebhelper;
+package org.aquarngd.xiaolianshowersense;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;

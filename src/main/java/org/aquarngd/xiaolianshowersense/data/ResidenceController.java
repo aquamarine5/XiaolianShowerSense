@@ -1,9 +1,8 @@
-package org.aquarngd.xiaolianwebhelper.data;
+package org.aquarngd.xiaolianshowersense.data;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import org.aquarngd.xiaolianwebhelper.XiaolianWebPortal;
-import org.aquarngd.xiaolianwebhelper.XiaolianwebhelperApplication;
+import org.aquarngd.xiaolianshowersense.XiaolianWebPortal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import java.sql.*;
 import java.util.Map;
 import java.util.Objects;
 
-@ComponentScan("org.aquarngd.xiaolianwebhelper")
+@ComponentScan("org.aquarngd.xiaolianshowersense")
 @Component
 public class ResidenceController {
 

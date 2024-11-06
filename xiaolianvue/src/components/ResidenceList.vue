@@ -1,11 +1,11 @@
 <script setup>
-import axios from 'axios';
+import wnetwork from '@/wnetwork';
 import { ElIcon, ElOption, ElSelect } from 'element-plus';
 var selectedValue = defineModel('residenceId')
 var placeholderText = defineModel('residenceText')
 var residences = defineModel("residences")
 residences.value=[]
-axios.get("http://47.96.24.132/api/list")
+wnetwork.get("/api/list")
     .then(response => {
         residences.value = response.data
         selectedValue.value=parseInt(sessionStorage.getItem("residenceId"))

@@ -1,5 +1,4 @@
 <script setup lang="js">
-import axios from 'axios';
 import Device from './components/Device.vue';
 import SuggestedDevice from './components/SuggestedDevice.vue';
 import ResidenceList from './components/ResidenceList.vue';
@@ -8,7 +7,7 @@ import Introduction from './components/Introduction.vue';
 import Sponsor from './components/Sponsor.vue';
 import WarningNotRunning from './components/WarningNotRunning.vue';
 import Map from './components/Map.vue';
-import { bus } from './bus';
+import wnetwork from './wnetwork';
 
 var washCount = defineModel('washCount')
 var avgWashTimeText = defineModel('avgWashTimeText')
@@ -35,10 +34,11 @@ function formatDate(t) {
         return minutes + " 分 " + seconds + " 秒"
 
     return hours + " 时 " + minutes + " 分 " + seconds + " 秒"
+
 }
 
 function getDevices() {
-    axios.get("http://47.96.24.132/api/wash?id=" + sessionStorage.getItem("residenceId"))
+    wnetwork.get("/api/wash?id=" + sessionStorage.getItem("residenceId"))
         .then(response => {
             var json = response.data
             var out = []
@@ -66,7 +66,7 @@ function getDevices() {
             })
             suggestedTryDevicesList = suggestedTryDevicesList.sort((a, b) => a.wtime / 1000 - b.wtime / 1000).slice(0, 20)
             suggestedWaitDevicesList = suggestedWaitDevicesList.sort((a, b) => a.time / 1000 - b.time / 1000).slice(0, 20)
-            bus.$emit("getData",out)
+
 
         }).catch(function (err) {
             console.log(err)
@@ -74,9 +74,9 @@ function getDevices() {
         })
 }
 function refreshDevices() {
-    var hour=new Date().getHours()
-    if(hour<13||hour>23) return;
-    axios.get("http://47.96.24.132/api/refresh?id=" + sessionStorage.getItem("residenceId"))
+    var hour = new Date().getHours()
+    if (hour < 13 || hour > 23) return;
+    wnetwork.get("/api/refresh?id=" + sessionStorage.getItem("residenceId"))
         .then(response => {
             var json = response.data
             json["devices"].forEach(element => {
@@ -98,7 +98,7 @@ function refreshDevices() {
             })
             suggestedTryDevicesList = suggestedTryDevicesList.sort((a, b) => a.wtime - b.wtime).slice(0, 20)
             suggestedWaitDevicesList = suggestedWaitDevicesList.sort((a, b) => a.time - b.time).slice(0, 20)
-            bus.$emit("refreshData",devicesList)
+
             console.log("refresh devices")
         }).catch(function (err) {
             console.log(err)
@@ -112,7 +112,7 @@ var showWaitMoreStatus = defineModel('showWaitMoreStatus')
 showTryMoreStatus.value = false
 showWaitMoreStatus.value = false
 
-var timer
+var timer=undefined
 getDevices()
 if (timer != undefined) clearInterval(timer)
 timer = setInterval(() => {
@@ -126,7 +126,7 @@ timer = setInterval(() => {
     <div style="margin: 10px;">
         <ResidenceList />
         <Introduction />
-        <WarningNotRunning/>
+        <WarningNotRunning />
         <Map />
         <div class="top_container">
             <div class="suggested_tips">
@@ -174,9 +174,9 @@ timer = setInterval(() => {
                     {{ showWaitMoreStatus ? "收起" : "展开" }}
                 </div>
             </div>
-        
+
         </div>
-        <Sponsor/>
+        <Sponsor />
         <div class="app_container">
             <div class="device_container" v-for="device in devicesList">
                 <Device :name="device.name" :id="device.id" :status="device.status" :tme="device.time"
@@ -188,10 +188,11 @@ timer = setInterval(() => {
 </template>
 
 <style>
-.suggested_detail{
+.suggested_detail {
     font-weight: 400;
     font-size: 12px;
 }
+
 .suggested_tips {
     border-radius: 7px 7px 0px 0px;
     border-style: solid;
@@ -202,9 +203,11 @@ timer = setInterval(() => {
     padding: 5px 5px 5px 14px;
     font-weight: 600;
 }
-.suggested_content{
+
+.suggested_content {
     padding: 5px 5px 5px 14px;
 }
+
 .top_container {
     border-radius: 10px;
     border-color: #0097a7;

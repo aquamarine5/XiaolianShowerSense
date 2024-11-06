@@ -1,5 +1,5 @@
 <script setup lang="js">
-import { ElIcon } from 'element-plus';
+import LineMdCompassTwotone from '~icons/line-md/compass-twotone?width=28px&height=28px';
 
 const props = defineProps({
     washCount: {
@@ -59,9 +59,7 @@ function jumpToDouyin() {
         </div>
     </div>
     <div class="tipsbar_bg">
-        <ElIcon class="tipsbar_icon" size="32" color="white">
-            <PieChart />
-        </ElIcon>
+        <LineMdCompassTwotone class="tipsbar_icon"/>
         <div class="tipsbar_container">
             <div class="tipsbar_column">
                 <div class="tipsbar_text">

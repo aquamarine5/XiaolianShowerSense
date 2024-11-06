@@ -1,6 +1,7 @@
 <script setup lang="js">
 import { ElIcon, ElMessageBox } from 'element-plus';
 import { h } from 'vue';
+import LineMdCoffeeHalfEmptyTwotoneLoop from '~icons/line-md/coffee-half-empty-twotone-loop?width=28px&height=28px';
 
 function click(){
     ElMessageBox({
@@ -15,9 +16,7 @@ function click(){
 
 <template>
     <div class="sponsor_bg">
-        <ElIcon size="28" color="white" class="sponsor_icon">
-            <MilkTea/>
-        </ElIcon>
+        <LineMdCoffeeHalfEmptyTwotoneLoop class="sponsor_icon"/>
         <div class="sponsor_container" @click="click">
             <div class="sponsor_title">
                 此工具真的有帮助？
