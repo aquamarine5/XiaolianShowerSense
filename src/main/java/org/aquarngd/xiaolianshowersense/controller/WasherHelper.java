@@ -2,13 +2,11 @@ package org.aquarngd.xiaolianshowersense.controller;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import org.aquarngd.xiaolianshowersense.UnifiedResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class WasherHelper {
@@ -16,7 +14,7 @@ public class WasherHelper {
     JdbcTemplate jdbcTemplate;
 
     @CrossOrigin(origins = "*")
-    @RequestMapping("/wash")
+    @GetMapping("/wash")
     public String GetWash(@RequestParam("id") int id) {
         JSONObject jsonObject = new JSONObject();
         SqlRowSet rs = jdbcTemplate.queryForRowSet(String.format("SELECT * FROM `%d`",id));
@@ -41,7 +39,7 @@ public class WasherHelper {
     }
 
     @CrossOrigin(origins = "*")
-    @RequestMapping("/refresh")
+    @GetMapping("/refresh")
     public String GetWashData(@RequestParam("id") int id) {
         JSONObject jsonObject = new JSONObject();
         SqlRowSet rs = jdbcTemplate.queryForRowSet(String.format("SELECT * FROM `%d`",id));
@@ -60,6 +58,6 @@ public class WasherHelper {
             jsonObject.put("avgWashCount", dataResult.getLong("avgWashCount"));
             jsonObject.put("requestTimes", dataResult.getInt("requestTimes"));
         }
-        return jsonObject.toJSONString();
+        return UnifiedResponse.Success(jsonObject).toJSONString();
     }
 }

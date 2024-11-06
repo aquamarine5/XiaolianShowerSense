@@ -42,10 +42,6 @@ public class XiaolianwebhelperApplication {
         SpringApplication.run(XiaolianwebhelperApplication.class, args);
     }
 
-    public JdbcTemplate getJdbcTemplate(){
-        return jdbcTemplate;
-    }
-
     @Async
     @Scheduled(cron = "0/10 * 13-22 * * ? ")
     public void refreshWasherDevicesData() {

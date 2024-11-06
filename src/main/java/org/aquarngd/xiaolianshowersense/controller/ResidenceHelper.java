@@ -2,11 +2,13 @@ package org.aquarngd.xiaolianshowersense.controller;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import org.aquarngd.xiaolianshowersense.UnifiedResponse;
 import org.aquarngd.xiaolianshowersense.data.ResidenceController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +23,7 @@ public class ResidenceHelper {
     JdbcTemplate jdbcTemplate;
 
     @CrossOrigin(origins = "*")
-    @RequestMapping("/list")
+    @GetMapping("/list")
     public String GetResidenceList(){
         SqlRowSet sqlRowSet= jdbcTemplate.queryForRowSet("SELECT * FROM `residenceIndex`");
         JSONArray result=new JSONArray();
@@ -33,13 +35,13 @@ public class ResidenceHelper {
                     Map.entry("name",sqlRowSet.getString("name"))
             )));
         }
-        return result.toJSONString();
+        return UnifiedResponse.Success(result).toJSONString();
     }
 
     @CrossOrigin(origins = "*")
-    @RequestMapping("/force_update")
+    @GetMapping("/force_update")
     public String ForceUpdateAllResidence(){
         residenceController.updateAllResidences();
-        return "";
+        return UnifiedResponse.SuccessSignal().toJSONString();
     }
 }
