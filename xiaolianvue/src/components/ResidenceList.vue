@@ -1,7 +1,7 @@
 <script setup>
 import wnetwork from '@/wnetwork';
 import LineMdQuestionCircleTwotone from '~icons/line-md/question-circle-twotone?width=28px&height=28px';
-import { ElIcon, ElOption, ElSelect } from 'element-plus';
+import { ElOption, ElSelect } from 'element-plus';
 var selectedValue = defineModel('residenceId')
 var placeholderText = defineModel('residenceText')
 var residences = defineModel("residences")

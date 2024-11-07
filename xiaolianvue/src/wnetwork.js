@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ElNotification } from 'element-plus';
 
 const service = axios.create({
-    baseURL: import.meta.env.VITE_APIHOST,
+    baseURL: "http://wash.aquamarine5.fun",
     timeout: 5000
 });
 

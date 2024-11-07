@@ -19,23 +19,23 @@ public class WasherHelper {
         JSONObject jsonObject = new JSONObject();
         SqlRowSet rs = jdbcTemplate.queryForRowSet(String.format("SELECT * FROM `%d`",id));
         SqlRowSet dataResult = jdbcTemplate.queryForRowSet("SELECT * FROM `data`");
-        JSONArray devicesList = jsonObject.putArray("devices");
+        JSONObject devices = new JSONObject();
         while (rs.next()) {
             JSONObject device = new JSONObject();
-            device.put("id", rs.getInt("displayNo"));
             device.put("status", rs.getInt("status"));
             device.put("name", rs.getString("location"));
             device.put("wtime",rs.getTimestamp("lastWashTime").getTime());
             device.put("time", rs.getTimestamp("lastUsedTime").getTime());
-            devicesList.add(device);
+            devices.put(String.valueOf(rs.getInt("displayNo")), device);
         }
+        jsonObject.put("devices", devices);
         if(dataResult.next()){
             jdbcTemplate.execute("UPDATE `data` SET requestTimes = requestTimes + 1");
             jsonObject.put("avgWashTime", dataResult.getLong("avgWashTime"));
             jsonObject.put("avgWashCount", dataResult.getLong("avgWashCount"));
             jsonObject.put("requestTimes", dataResult.getInt("requestTimes"));
         }
-        return jsonObject.toJSONString();
+        return UnifiedResponse.Success(jsonObject).toJSONString();
     }
 
     @CrossOrigin(origins = "*")
@@ -44,15 +44,15 @@ public class WasherHelper {
         JSONObject jsonObject = new JSONObject();
         SqlRowSet rs = jdbcTemplate.queryForRowSet(String.format("SELECT * FROM `%d`",id));
         SqlRowSet dataResult = jdbcTemplate.queryForRowSet("SELECT * FROM `data`");
-        JSONArray devicesList = jsonObject.putArray("devices");
+        JSONObject devices = new JSONObject();
         while (rs.next()) {
             JSONObject device = new JSONObject();
-            device.put("id", rs.getInt("displayNo"));
             device.put("status", rs.getInt("status"));
-            device.put("time", rs.getTimestamp("lastUsedTime").getTime());
             device.put("wtime",rs.getTimestamp("lastWashTime").getTime());
-            devicesList.add(device);
+            device.put("time", rs.getTimestamp("lastUsedTime").getTime());
+            devices.put(String.valueOf(rs.getInt("displayNo")), device);
         }
+        jsonObject.put("devices", devices);
         if(dataResult.next()){
             jsonObject.put("avgWashTime", dataResult.getLong("avgWashTime"));
             jsonObject.put("avgWashCount", dataResult.getLong("avgWashCount"));

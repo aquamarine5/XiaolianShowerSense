@@ -1,6 +1,6 @@
 package org.aquarngd.xiaolianshowersense.controller;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import org.aquarngd.xiaolianshowersense.UnifiedResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +22,10 @@ public class MapHelper {
 
     @CrossOrigin(origins = "*")
     @GetMapping("/map")
-    public String GetResidenceMap(@RequestParam int residenceId){
-        SqlRowSet sqlRowSet= jdbcTemplate.queryForRowSet("SELECT mapdata FROM `residenceIndex` where residenceId = ?",residenceId);
+    public String GetResidenceMap(@RequestParam int id){
+        SqlRowSet sqlRowSet= jdbcTemplate.queryForRowSet("SELECT mapdata FROM `residenceIndex` where residenceId = ?",id);
         if(sqlRowSet.next()){
-            return UnifiedResponse.Success(sqlRowSet.getString("mapdata")).toJSONString();
+            return UnifiedResponse.Success(JSONArray.parse(sqlRowSet.getString("mapdata"))).toJSONString();
         }
         else return UnifiedResponse.Failed("No such residence").toJSONString();
     }

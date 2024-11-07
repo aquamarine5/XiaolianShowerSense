@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id 'org.hidetake.ssh' version '2.11.2'
 }
 
 group = 'org.aquarngd'
@@ -37,4 +38,27 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+remotes {
+	webServer {
+		host = '47.96.24.132'
+		port = 22
+		user = 'root'
+		password = '140309417aqua@'
+	}
+}
+
+
+task deployJar(type: DefaultTask) {
+	dependsOn 'build'
+	doLast {
+		ssh.run {
+			session(remotes.webServer) {
+				put from: file("build/libs/XiaolianShowerSense-${version}.jar"), into: '/root/workspace/XiaolianShowerSense.jar'
+				execute 'killall -9 java'
+				execute 'nohup java -jar /root/workspace/XiaolianShowerSense.jar > /dev/null 2>&1 &'
+			}
+		}
+	}
 }

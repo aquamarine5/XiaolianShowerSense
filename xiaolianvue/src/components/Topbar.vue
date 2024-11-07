@@ -28,7 +28,7 @@ function jumpToDouyin() {
     <div class="topbar_bg">
         <div class="topbar_container">
             <div class="topbar_title">
-                XiaolianWebHelper
+                XiaolianShowerSense
             </div>
             <LineMdTiktok class="topbar_douyin" @click="jumpToDouyin"/>
             <LineMdGithubTwotone class="topbar_github" @click="jumpToGithub"/>
