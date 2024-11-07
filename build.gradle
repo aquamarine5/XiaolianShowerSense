@@ -1,3 +1,5 @@
+import org.hidetake.groovy.ssh.core.Remote
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.5'
@@ -45,7 +47,7 @@ remotes {
 		host = '47.96.24.132'
 		port = 22
 		user = 'root'
-		password = '140309417aqua@'
+		password = project.sshPassword
 	}
 }
 
@@ -56,7 +58,7 @@ task deployJar(type: DefaultTask) {
 		ssh.run {
 			session(remotes.webServer) {
 				put from: file("build/libs/XiaolianShowerSense-${version}.jar"), into: '/root/workspace/XiaolianShowerSense.jar'
-				execute 'killall -9 java'
+				execute 'killall -9 java || true'
 				execute 'nohup java -jar /root/workspace/XiaolianShowerSense.jar > /dev/null 2>&1 &'
 			}
 		}
