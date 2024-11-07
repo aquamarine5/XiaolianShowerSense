@@ -42,24 +42,25 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-remotes {
-	webServer {
-		host = '47.96.24.132'
-		port = 22
-		user = 'root'
-		password = project.sshPassword
+if (!System.getenv('GITHUB_ACTIONS')) {
+	remotes {
+		webServer {
+			host = '47.96.24.132'
+			port = 22
+			user = 'root'
+			password = project.sshPassword
+		}
 	}
-}
 
-
-task deployJar(type: DefaultTask) {
-	dependsOn 'build'
-	doLast {
-		ssh.run {
-			session(remotes.webServer) {
-				put from: file("build/libs/XiaolianShowerSense-${version}.jar"), into: '/root/workspace/XiaolianShowerSense.jar'
-				execute 'killall -9 java || true'
-				execute 'nohup java -jar /root/workspace/XiaolianShowerSense.jar > /dev/null 2>&1 &'
+	task deployJar(type: DefaultTask) {
+		dependsOn 'build'
+		doLast {
+			ssh.run {
+				session(remotes.webServer) {
+					put from: file("build/libs/XiaolianShowerSense-${version}.jar"), into: '/root/workspace/XiaolianShowerSense.jar'
+					execute 'killall -9 java || true'
+					execute 'nohup java -jar /root/workspace/XiaolianShowerSense.jar > /dev/null 2>&1 &'
+				}
 			}
 		}
 	}
