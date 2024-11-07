@@ -1,5 +1,6 @@
 <script setup>
 import wnetwork from '@/wnetwork';
+import LineMdQuestionCircleTwotone from '~icons/line-md/question-circle-twotone?width=28px&height=28px';
 import { ElIcon, ElOption, ElSelect } from 'element-plus';
 var selectedValue = defineModel('residenceId')
 var placeholderText = defineModel('residenceText')
@@ -33,9 +34,7 @@ function onChangeSelectedValue(value) {
 
     </div>
     <div class="residenceList_notice">
-        <ElIcon :size="24" color="#FFF" class="residenceList_notice_icon">
-            <QuestionFilled/>
-        </ElIcon>
+        <LineMdQuestionCircleTwotone class="residenceList_notice_icon" />
         <div>
             没有你所在的宿舍？请联系作者：<br/>
         抖音@海蓝色的咕咕鸽

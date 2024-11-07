@@ -32,6 +32,7 @@ function click(){
 .sponsor_icon{
     padding-right: 10px;
     padding-left: 7px;
+    color: white;
 }
 .sponsor_bg{
     cursor: pointer;

@@ -27,6 +27,7 @@ function check() {
 .warning_notrunning_icon {
     padding-right: 10px;
     padding-left: 7px;
+    color: white;
 }
 
 .warning_notrunning_bg {
