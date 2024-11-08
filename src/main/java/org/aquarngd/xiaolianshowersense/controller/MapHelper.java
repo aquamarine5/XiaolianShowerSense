@@ -23,9 +23,14 @@ public class MapHelper {
     @CrossOrigin(origins = "*")
     @GetMapping("/map")
     public String GetResidenceMap(@RequestParam int id){
-        SqlRowSet sqlRowSet= jdbcTemplate.queryForRowSet("SELECT mapdata FROM `residenceIndex` where residenceId = ?",id);
+        SqlRowSet sqlRowSet= jdbcTemplate.queryForRowSet("SELECT mapdata,contributors FROM `residenceIndex` where residenceId = ?",id);
+        JSONObject jsonObject=new JSONObject();
         if(sqlRowSet.next()){
-            return UnifiedResponse.Success(JSONArray.parse(sqlRowSet.getString("mapdata"))).toJSONString();
+            jsonObject.put("isShowMap",sqlRowSet.getString("mapdata")!=null);
+            jsonObject.put("mapdata",JSONArray.parse(sqlRowSet.getString("mapdata")));
+            jsonObject.put("contributors",sqlRowSet.getString("contributors"));
+
+            return UnifiedResponse.Success(jsonObject).toJSONString();
         }
         else return UnifiedResponse.Failed("No such residence").toJSONString();
     }

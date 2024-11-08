@@ -24,6 +24,8 @@ import LineMdEmojiSmileWinkTwotone from '~icons/line-md/emoji-smile-wink-twotone
     padding-right: 8px;
     padding-left: 7px;
     color: white;
+    min-height: 28px;
+    min-width: 28px;
 }
 .introduction_bg{
     margin-block: 9px;

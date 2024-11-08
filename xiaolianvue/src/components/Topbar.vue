@@ -114,7 +114,7 @@ function jumpToDouyin() {
 .topbar_title {
     font-family: 'Gilroy', sans-serif;
     font-weight: 800;
-    font-size: 24px;
+    font-size: 22px;
     color: whitesmoke;
 }
 

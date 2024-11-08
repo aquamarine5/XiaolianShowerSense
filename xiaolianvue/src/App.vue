@@ -21,12 +21,12 @@ var showWaitMoreStatus = ref(false)
 </script>
 
 <template>
-    <Topbar :wash-avg-time="avgWashTimeText" :use-count="requestTimes" :wash-count="washCount" />
+    <Topbar :wash-avg-time="formatDate(avgWashTimeText)" :use-count="requestTimes" :wash-count="washCount" />
     <div style="margin: 10px;">
         <ResidenceList />
         <Introduction />
         <WarningNotRunning />
-        <MapRenderer ref="map" :devicesList="devicesList" />
+        <MapRenderer ref="map" :devicesList="devicesList" :avgWashTime="avgWashTimeText"/>
         <div class="top_container">
             <div class="suggested_tips">
                 推荐去尝试可能没人的淋浴头：
@@ -144,7 +144,7 @@ export default {
                         }
                     }
                     this.washCount = json.avgWashCount
-                    this.avgWashTimeText = this.formatDate(json.avgWashTime)
+                    this.avgWashTimeText = json.avgWashTime
                     this.requestTimes = json.requestTimes
                     this.devicesList = out;
                     out.forEach(element => {
@@ -175,7 +175,7 @@ export default {
                         this.devicesList[index - 1].time = element.time
                     }
                     this.washCount = json.avgWashCount
-                    this.avgWashTimeText = this.formatDate(json.avgWashTime)
+                    this.avgWashTimeText = json.avgWashTime
                     this.requestTimes = json.requestTimes
                     this.suggestedTryDevicesList = []
                     this.suggestedWaitDevicesList = []
