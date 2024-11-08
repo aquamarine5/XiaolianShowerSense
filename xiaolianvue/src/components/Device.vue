@@ -13,8 +13,8 @@ const props = defineProps({
     tme: {
         type: Number
     },
-    wtime:{
-        type:Number
+    wtime: {
+        type: Number
     }
 })
 function formatDate(t) {
@@ -35,20 +35,20 @@ function formatColor(s) {
     else if (s == 2) return '#00F'
     else return '#FF0'
 }
-function parseStatus(){
-    if(props.status==1){
-        tipstext.value="距离上次启用过去了："
-        time.value=formatDate(new Date().getTime()-props.wtime)
+function parseStatus() {
+    if (props.status == 1) {
+        tipstext.value = "距离上次启用过去了："
+        time.value = formatDate(new Date().getTime() - props.wtime)
     }
-    else if(props.status==2){
-        tipstext.value="已经洗了："
-        time.value=formatDate(new Date().getTime()-props.tme)
-    }else{
-        tipstext.value="Oops! 已故障。"
+    else if (props.status == 2) {
+        tipstext.value = "已经洗了："
+        time.value = formatDate(new Date().getTime() - props.tme)
+    } else {
+        tipstext.value = "Oops! 已故障。"
     }
 }
-var tipstext=defineModel('tipstext')
-tipstext.value="已经洗了："
+var tipstext = defineModel('tipstext')
+tipstext.value = "已经洗了："
 var time = defineModel('time')
 var timer;
 parseStatus()

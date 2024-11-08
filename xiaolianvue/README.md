@@ -1,29 +1,3 @@
-# xiaolianvue
-
-This template should help get you started developing with Vue 3 in Vite.
-
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+# XiaolianWebHelper
+[![](https://tokei.rs/b1/github/aquamarine5/XiaolianWebHelper)](https://github.com/XAMPPRocky/tokei) 
+![Alt](https://repobeats.axiom.co/api/embed/f0821a2b9a53baa242030873157e39fd678e61c0.svg "Repobeats analytics image")

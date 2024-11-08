@@ -1,21 +1,25 @@
 {
-  "name": "xiaolianvue",
-  "version": "0.5.5",
+  "name": "xiaolianshowersense",
+  "version": "0.6.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "remote-deploy.cmd"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.3.1",
     "axios": "^1.7.7",
-    "element-plus": "^2.8.3",
+    "element-plus": "^2.8.4",
     "vue": "^3.4.29"
   },
   "devDependencies": {
+    "@iconify-json/line-md": "^1.2.2",
+    "@iconify-json/mdi": "^1.2.1",
     "@vitejs/plugin-vue": "^5.0.5",
+    "@vue/compiler-sfc": "^3.5.12",
+    "unplugin-icons": "^0.20.1",
     "vite": "^5.3.1"
   }
 }

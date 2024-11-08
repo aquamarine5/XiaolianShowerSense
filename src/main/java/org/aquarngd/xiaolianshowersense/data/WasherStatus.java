@@ -1,4 +1,4 @@
-package org.aquarngd.xiaolianwebhelper.data;
+package org.aquarngd.xiaolianshowersense.data;
 
 public enum WasherStatus {
     NOT_USING(1),

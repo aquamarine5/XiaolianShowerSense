@@ -1,5 +1,4 @@
-<script setup lang="js">
-import axios from 'axios';
+<script setup>
 import Device from './components/Device.vue';
 import SuggestedDevice from './components/SuggestedDevice.vue';
 import ResidenceList from './components/ResidenceList.vue';
@@ -7,121 +6,31 @@ import Topbar from './components/Topbar.vue';
 import Introduction from './components/Introduction.vue';
 import Sponsor from './components/Sponsor.vue';
 import WarningNotRunning from './components/WarningNotRunning.vue';
-
-var washCount = defineModel('washCount')
-var avgWashTimeText = defineModel('avgWashTimeText')
-var requestTimes = defineModel('requestTimes')
-var devicesList = []
-var suggestedWaitDevicesList = []
-var suggestedTryDevicesList = []
+import wnetwork from './wnetwork';
+import { nextTick, ref } from 'vue';
+import MapRenderer from './components/map/MapRenderer.vue';
+import AnalysisDisplayer from './components/AnalysisDisplayer.vue';
 
 var residenceId = sessionStorage.getItem("residenceId")
 if (residenceId == null) {
     residenceId = 1215856
-    sessionStorage.setItem("residenceId", 1215856)
+    sessionStorage.setItem("residenceId", residenceId.toString())
 }
 
-function formatDate(t) {
-    var seconds = Math.floor((t / 1000) % 60),
-        minutes = Math.floor((t / (1000 * 60)) % 60),
-        hours = Math.floor((t / (1000 * 60 * 60)) % 24)
-
-    hours = (hours < 10) ? "0" + hours : hours
-    minutes = (minutes < 10) ? "0" + minutes : minutes
-    seconds = (seconds < 10) ? "0" + seconds : seconds
-    if (hours == "00")
-        return minutes + " 分 " + seconds + " 秒"
-
-    return hours + " 时 " + minutes + " 分 " + seconds + " 秒"
-}
-
-function getDevices() {
-    axios.get("http://47.96.24.132/api/wash?id=" + sessionStorage.getItem("residenceId"))
-        .then(response => {
-            var json = response.data
-            var out = []
-            json["devices"].forEach(element => {
-                out[element.id - 1] = {
-                    id: element.id,
-                    status: element.status,
-                    time: element.time,
-                    name: element.name,
-                    wtime: element.wtime
-                }
-            })
-            washCount.value = json.avgWashCount
-            avgWashTimeText.value = formatDate(json.avgWashTime)
-            requestTimes.value = json.requestTimes
-            console.log(out)
-            devicesList = out;
-            out.forEach(element => {
-                if (element.status == 1 && (new Date().getTime() - element.wtime) > 360000) {
-                    suggestedTryDevicesList.push(element)
-                }
-                if (element.status == 2 && (new Date().getTime() - element.time) > json.avgWashTime) {
-                    suggestedWaitDevicesList.push(element)
-                }
-            })
-            suggestedTryDevicesList = suggestedTryDevicesList.sort((a, b) => a.wtime / 1000 - b.wtime / 1000).slice(0, 20)
-            suggestedWaitDevicesList = suggestedWaitDevicesList.sort((a, b) => a.time / 1000 - b.time / 1000).slice(0, 20)
-
-        }).catch(function (err) {
-            console.log(err)
-            return [];
-        })
-}
-function refreshDevices() {
-    var hour=new Date().getHours()
-    if(hour<13||hour>23) return;
-    axios.get("http://47.96.24.132/api/refresh?id=" + sessionStorage.getItem("residenceId"))
-        .then(response => {
-            var json = response.data
-            json["devices"].forEach(element => {
-                devicesList[element.id - 1].status = element.status
-                devicesList[element.id - 1].time = element.time
-            })
-            washCount.value = json.avgWashCount
-            avgWashTimeText.value = formatDate(json.avgWashTime)
-            requestTimes.value = json.requestTimes
-            suggestedTryDevicesList = []
-            suggestedWaitDevicesList = []
-            devicesList.forEach(element => {
-                if (element.status == 1 && (new Date().getTime() - element.wtime) > 360000) {
-                    suggestedTryDevicesList.push(element)
-                }
-                if (element.status == 2 && (new Date().getTime() - element.time) > json.avgWashTime) {
-                    suggestedWaitDevicesList.push(element)
-                }
-            })
-            suggestedTryDevicesList = suggestedTryDevicesList.sort((a, b) => a.wtime - b.wtime).slice(0, 20)
-            suggestedWaitDevicesList = suggestedWaitDevicesList.sort((a, b) => a.time - b.time).slice(0, 20)
-            console.log("refresh devices")
-        }).catch(function (err) {
-            console.log(err)
-            return out;
-        })
-}
-
-var showTryMoreStatus = defineModel('showTryMoreStatus')
-var showWaitMoreStatus = defineModel('showWaitMoreStatus')
-showTryMoreStatus.value = false
-showWaitMoreStatus.value = false
-
-var timer
-getDevices()
-if (timer != undefined) clearInterval(timer)
-timer = setInterval(() => {
-    refreshDevices()
-}, 10000)
-
+var showTryMoreStatus = ref(false)
+var showWaitMoreStatus = ref(false)
 </script>
 
 <template>
-    <Topbar :wash-avg-time="avgWashTimeText" :use-count="requestTimes" :wash-count="washCount" />
+    <Topbar />
     <div style="margin: 10px;">
         <ResidenceList />
         <Introduction />
-        <WarningNotRunning/>
+        <WarningNotRunning />
+        <MapRenderer :devicesList="devicesList" :avgWashTime="avgWashTimeText" />
+        <AnalysisDisplayer :wash-avg-time="formatDate(avgWashTimeText)" :use-count="requestTimes"
+            :wash-count="washCount" />
+        <Sponsor />
         <div class="top_container">
             <div class="suggested_tips">
                 推荐去尝试可能没人的淋浴头：
@@ -144,7 +53,6 @@ timer = setInterval(() => {
                     {{ showTryMoreStatus ? "收起" : "展开" }}
                 </div>
             </div>
-
         </div>
         <div class="top_container">
             <div class="suggested_tips">
@@ -168,9 +76,7 @@ timer = setInterval(() => {
                     {{ showWaitMoreStatus ? "收起" : "展开" }}
                 </div>
             </div>
-        
         </div>
-        <Sponsor/>
         <div class="app_container">
             <div class="device_container" v-for="device in devicesList">
                 <Device :name="device.name" :id="device.id" :status="device.status" :tme="device.time"
@@ -178,14 +84,128 @@ timer = setInterval(() => {
             </div>
         </div>
     </div>
-
 </template>
 
+<script>
+export default {
+    components: {
+        Device,
+        SuggestedDevice,
+        ResidenceList,
+        Topbar,
+        Introduction,
+        Sponsor,
+        WarningNotRunning,
+        MapRenderer
+    },
+    mounted() {
+        this.getDevices()
+        setInterval(() => {
+            this.refreshDevices()
+        }, 10000)
+    },
+    data() {
+        return {
+            washCount: ref(0),
+            avgWashTimeText: ref(""),
+            requestTimes: ref(0),
+            devicesList: ref([]),
+            suggestedWaitDevicesList: ref([]),
+            suggestedTryDevicesList: ref([])
+        }
+    },
+    methods: {
+        formatDate(t) {
+            var seconds = Math.floor((t / 1000) % 60),
+                minutes = Math.floor((t / (1000 * 60)) % 60),
+                hours = Math.floor((t / (1000 * 60 * 60)) % 24)
+
+            hours = (hours < 10) ? "0" + hours : hours
+            minutes = (minutes < 10) ? "0" + minutes : minutes
+            seconds = (seconds < 10) ? "0" + seconds : seconds
+            if (hours == "00")
+                return minutes + " 分 " + seconds + " 秒"
+            return hours + " 时 " + minutes + " 分 " + seconds + " 秒"
+        },
+        getDevices() {
+            wnetwork.get("/api/wash?id=" + sessionStorage.getItem("residenceId"))
+                .then(response => {
+                    var json = response.data.data
+                    console.log(json)
+                    var out = []
+                    for (let index = 1; index < json.length; index++) {
+                        let element = json.devices[index]
+                        out[index - 1] = {
+                            id: index,
+                            status: element.status,
+                            time: element.time,
+                            name: element.name,
+                            wtime: element.wtime
+                        }
+                    }
+                    this.washCount = json.avgWashCount
+                    this.avgWashTimeText = json.avgWashTime
+                    this.requestTimes = json.requestTimes
+                    this.devicesList = out;
+                    out.forEach(element => {
+                        if (element.status == 1 && (new Date().getTime() - element.wtime) > 360000) {
+                            this.suggestedTryDevicesList.push(element)
+                        }
+                        if (element.status == 2 && (new Date().getTime() - element.time) > json.avgWashTime) {
+                            this.suggestedWaitDevicesList.push(element)
+                        }
+                    })
+                    this.suggestedTryDevicesList = this.suggestedTryDevicesList.sort((a, b) => a.wtime / 1000 - b.wtime / 1000).slice(0, 20)
+                    this.suggestedWaitDevicesList = this.suggestedWaitDevicesList.sort((a, b) => a.time / 1000 - b.time / 1000).slice(0, 20)
+                }).catch(function (err) {
+                    console.log(err)
+                    return [];
+                })
+        },
+        refreshDevices() {
+            var hour = new Date().getHours()
+            if (hour < 13 || hour > 23) return;
+            wnetwork.get("/api/refresh?id=" + sessionStorage.getItem("residenceId"))
+                .then(response => {
+                    var json = response.data.data
+                    console.log(json)
+                    for (let index = 1; index < json.length; index++) {
+                        let element = json.devices[index]
+                        this.devicesList[index - 1].status = element.status
+                        this.devicesList[index - 1].time = element.time
+                    }
+                    this.washCount = json.avgWashCount
+                    this.avgWashTimeText = json.avgWashTime
+                    this.requestTimes = json.requestTimes
+                    this.suggestedTryDevicesList = []
+                    this.suggestedWaitDevicesList = []
+                    this.devicesList.forEach(element => {
+                        if (element.status == 1 && (new Date().getTime() - element.wtime) > 360000) {
+                            this.suggestedTryDevicesList.push(element)
+                        }
+                        if (element.status == 2 && (new Date().getTime() - element.time) > json.avgWashTime) {
+                            this.suggestedWaitDevicesList.push(element)
+                        }
+                    })
+                    this.suggestedTryDevicesList = this.suggestedTryDevicesList.sort((a, b) => a.wtime - b.wtime).slice(0, 20)
+                    this.suggestedWaitDevicesList = this.suggestedWaitDevicesList.sort((a, b) => a.time - b.time).slice(0, 20)
+
+                    console.log("refresh devices")
+                }).catch(function (err) {
+                    console.log(err)
+                    return out;
+                })
+        }
+    }
+}
+</script>
+
 <style>
-.suggested_detail{
+.suggested_detail {
     font-weight: 400;
     font-size: 12px;
 }
+
 .suggested_tips {
     border-radius: 7px 7px 0px 0px;
     border-style: solid;
@@ -196,9 +216,11 @@ timer = setInterval(() => {
     padding: 5px 5px 5px 14px;
     font-weight: 600;
 }
-.suggested_content{
+
+.suggested_content {
     padding: 5px 5px 5px 14px;
 }
+
 .top_container {
     border-radius: 10px;
     border-color: #0097a7;
