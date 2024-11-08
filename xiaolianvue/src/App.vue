@@ -6,16 +6,9 @@ import Topbar from './components/Topbar.vue';
 import Introduction from './components/Introduction.vue';
 import Sponsor from './components/Sponsor.vue';
 import WarningNotRunning from './components/WarningNotRunning.vue';
-import Map from './components/map/Map.vue';
 import wnetwork from './wnetwork';
-import { ref } from 'vue';
-
-var washCount = ref(0)
-var avgWashTimeText = ref("")
-var requestTimes = ref(0)
-var devicesList = []
-var suggestedWaitDevicesList = []
-var suggestedTryDevicesList = []
+import { nextTick, ref } from 'vue';
+import MapRenderer from './components/map/MapRenderer.vue';
 
 var residenceId = sessionStorage.getItem("residenceId")
 if (residenceId == null) {
@@ -33,7 +26,7 @@ var showWaitMoreStatus = ref(false)
         <ResidenceList />
         <Introduction />
         <WarningNotRunning />
-        <Map ref="map" />
+        <MapRenderer ref="map" :devicesList="devicesList" />
         <div class="top_container">
             <div class="suggested_tips">
                 推荐去尝试可能没人的淋浴头：
@@ -95,17 +88,31 @@ var showWaitMoreStatus = ref(false)
 
 <script>
 export default {
-    created() {
+    components: {
+        Device,
+        SuggestedDevice,
+        ResidenceList,
+        Topbar,
+        Introduction,
+        Sponsor,
+        WarningNotRunning,
+        MapRenderer
+    },
+    mounted() {
         this.getDevices()
-        let timer=setInterval(() => {
+        setInterval(() => {
             this.refreshDevices()
         }, 10000)
-        return{
-            timer
-        }
     },
-    beforeDestroy() {
-        clearInterval(this.timer)
+    data() {
+        return {
+            washCount: ref(0),
+            avgWashTimeText: ref(""),
+            requestTimes: ref(0),
+            devicesList: ref([]),
+            suggestedWaitDevicesList: ref([]),
+            suggestedTryDevicesList: ref([])
+        }
     },
     methods: {
         formatDate(t) {
@@ -124,32 +131,32 @@ export default {
             wnetwork.get("/api/wash?id=" + sessionStorage.getItem("residenceId"))
                 .then(response => {
                     var json = response.data.data
+                    console.log(json)
                     var out = []
-                    json["devices"].forEach(element => {
-                        out[element.id - 1] = {
-                            id: element.id,
+                    for (let index = 1; index < json.length; index++) {
+                        let element = json.devices[index]
+                        out[index-1] = {
+                            id: index,
                             status: element.status,
                             time: element.time,
                             name: element.name,
                             wtime: element.wtime
                         }
-                    })
-                    washCount.value = json.avgWashCount
-                    avgWashTimeText.value = formatDate(json.avgWashTime)
-                    requestTimes.value = json.requestTimes
-                    console.log(out)
-                    this.$refs.map.setupData(json)
-                    devicesList = out;
+                    }
+                    this.washCount = json.avgWashCount
+                    this.avgWashTimeText = this.formatDate(json.avgWashTime)
+                    this.requestTimes = json.requestTimes
+                    this.devicesList = out;
                     out.forEach(element => {
                         if (element.status == 1 && (new Date().getTime() - element.wtime) > 360000) {
-                            suggestedTryDevicesList.push(element)
+                            this.suggestedTryDevicesList.push(element)
                         }
                         if (element.status == 2 && (new Date().getTime() - element.time) > json.avgWashTime) {
-                            suggestedWaitDevicesList.push(element)
+                            this.suggestedWaitDevicesList.push(element)
                         }
                     })
-                    suggestedTryDevicesList = suggestedTryDevicesList.sort((a, b) => a.wtime / 1000 - b.wtime / 1000).slice(0, 20)
-                    suggestedWaitDevicesList = suggestedWaitDevicesList.sort((a, b) => a.time / 1000 - b.time / 1000).slice(0, 20)
+                    this.suggestedTryDevicesList = this.suggestedTryDevicesList.sort((a, b) => a.wtime / 1000 - b.wtime / 1000).slice(0, 20)
+                    this.suggestedWaitDevicesList = this.suggestedWaitDevicesList.sort((a, b) => a.time / 1000 - b.time / 1000).slice(0, 20)
                 }).catch(function (err) {
                     console.log(err)
                     return [];
@@ -161,25 +168,27 @@ export default {
             wnetwork.get("/api/refresh?id=" + sessionStorage.getItem("residenceId"))
                 .then(response => {
                     var json = response.data.data
-                    json["devices"].forEach(element => {
-                        devicesList[element.id - 1].status = element.status
-                        devicesList[element.id - 1].time = element.time
-                    })
-                    washCount.value = json.avgWashCount
-                    avgWashTimeText.value = formatDate(json.avgWashTime)
-                    requestTimes.value = json.requestTimes
-                    suggestedTryDevicesList = []
-                    suggestedWaitDevicesList = []
-                    devicesList.forEach(element => {
+                    console.log(json)
+                    for (let index = 1; index < json.length; index++) {
+                        let element = json.devices[index]
+                        this.devicesList[index - 1].status = element.status
+                        this.devicesList[index - 1].time = element.time
+                    }
+                    this.washCount = json.avgWashCount
+                    this.avgWashTimeText = this.formatDate(json.avgWashTime)
+                    this.requestTimes = json.requestTimes
+                    this.suggestedTryDevicesList = []
+                    this.suggestedWaitDevicesList = []
+                    this.devicesList.forEach(element => {
                         if (element.status == 1 && (new Date().getTime() - element.wtime) > 360000) {
-                            suggestedTryDevicesList.push(element)
+                            this.suggestedTryDevicesList.push(element)
                         }
                         if (element.status == 2 && (new Date().getTime() - element.time) > json.avgWashTime) {
-                            suggestedWaitDevicesList.push(element)
+                            this.suggestedWaitDevicesList.push(element)
                         }
                     })
-                    suggestedTryDevicesList = suggestedTryDevicesList.sort((a, b) => a.wtime - b.wtime).slice(0, 20)
-                    suggestedWaitDevicesList = suggestedWaitDevicesList.sort((a, b) => a.time - b.time).slice(0, 20)
+                    this.suggestedTryDevicesList = this.suggestedTryDevicesList.sort((a, b) => a.wtime - b.wtime).slice(0, 20)
+                    this.suggestedWaitDevicesList = this.suggestedWaitDevicesList.sort((a, b) => a.time - b.time).slice(0, 20)
 
                     console.log("refresh devices")
                 }).catch(function (err) {

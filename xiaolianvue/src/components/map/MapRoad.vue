@@ -4,27 +4,20 @@ import MapWasher from './MapWasher.vue';
 
 
 const props = defineProps(
-    ["roadData"]
+    ["roadData",'isReady']
 )
-var washerDetails = ref({
-    left: ref([]),
-    right: ref([])
-})
-
 </script>
 
 <template>
-    <div class="road_container">
+    <div class="road_container" v-if="isReady">
         <div class="road_neighbours">
-            <MapWasher v-for="(washer, id) in washerDetails.left" :status="washer.status"
-                :lastUsedTime="washer.lastUsedTime" :displayid="id" :ref="'washer' + id" :key="id" />
+            <MapWasher v-for="(washer, id) in props.roadData[0]" :key="id" :deviceInfo="washer"/>
         </div>
-        <div class="road_display" :style="{ backgroundColor: roadDisplayColor}">
+        <div class="road_display" :style="{ backgroundColor: roadDisplayColor }">
 
         </div>
         <div class="road_neighbours">
-            <MapWasher v-for="(washer, id) in washerDetails.right" :status="washer.status"
-                :lastUsedTime="washer.lastUsedTime" :displayid="id" :key="id" />
+            <MapWasher v-for="(washer, id) in props.roadData[1]" :key="id" :deviceInfo="washer"/>
         </div>
     </div>
 </template>
@@ -46,34 +39,14 @@ const interpolateColor = (start, end, factor) => {
 const roadDisplayColor = computed(() => {
     return interpolateColor(startColor, endColor, roadDisplayValue.value);
 });
-export default {
-    methods: {
-        setupRoad(data) {
-            props.roadData[0].forEach(displayNo => {
-                washerDetails.left.value[displayNo] = {
-                    status: data.devices[displayNo].status,
-                    lastUsedTime: data[displayNo].lastUsedTime
-                }
-            });
-            props.roadData[1].forEach(displayNo => {
-                washerDetails.right.value[displayNo] = {
-                    status: data.devices[displayNo].status,
-                    lastUsedTime: data.devices[displayNo].lastUsedTime
-                }
-            });
-        },
-        refreshRoad(data) {
-            data.devices.forEach(id => {
-                if (washerDetails.value.left[id]) {
-                    washerDetails.value.left[id].status = data.devices[id].status
-                    washerDetails.value.left[id].lastUsedTime = data.devices[id].lastUsedTime
-                }
-                if (washerDetails.value.right[id]) {
-                    washerDetails.value.right[id].status = data.devices[id].status
-                    washerDetails.value.right[id].lastUsedTime = data.devices[id].lastUsedTime
-                }
-            })
-        }
-    }
-}
 </script>
+
+<style>
+.road_neighbours{
+    display: flex;
+    gap:5px;
+}
+.road_display{
+    height: 5px;
+}
+</style>

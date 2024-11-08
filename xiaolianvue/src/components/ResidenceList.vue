@@ -8,7 +8,7 @@ var residences = defineModel("residences")
 residences.value=[]
 wnetwork.get("/api/list")
     .then(response => {
-        residences.value = response.data
+        residences.value = response.data.data
         selectedValue.value=parseInt(sessionStorage.getItem("residenceId"))
         console.log(residences.value)
     })
