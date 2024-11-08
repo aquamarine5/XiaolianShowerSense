@@ -37,5 +37,7 @@ jobs:
     - run: cd xiaolianvue
     - run: npm ci
       working-directory: ./xiaolianvue
+    - run: npm i
+      working-directory: ./xiaolianvue
     - run: npm run build --if-present
       working-directory: ./xiaolianvue
