@@ -7,7 +7,7 @@ function click() {
     ElMessageBox({
         title: "推荐使用微信支付",
         message: h('img', {
-            src: "http://47.96.24.132/sponsor.jpg",
+            src: "http://wash.aquamarine5.fun/sponsor.jpg",
             style: ""
         })
     })

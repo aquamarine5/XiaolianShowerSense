@@ -50,7 +50,7 @@ const isReady = computed(() => {
                 浴室地图：
             </div>
             <MapRoad v-for="(road, index) in mapData" :roadData="road" :avgWashTime="props.avgWashTime"
-                :isready="isReady" />
+                :isready="isReady" :key="index"/>
         </div>
         <div class="map_nodata" v-else>
             <div class="map_nodata_tips">
@@ -104,7 +104,7 @@ const isReady = computed(() => {
     gap: 8px;
     display: flex;
     align-items: center;
-    padding-bottom: 5px;
+    padding-bottom: 7px;
     font-weight: 600;
 }
 

@@ -12,9 +12,9 @@ import LineMdEmojiSmileWinkTwotone from '~icons/line-md/emoji-smile-wink-twotone
             <div class="introduction_text">
                 XiaolianShowerSense 可以监控每个淋浴头的使用情况，并帮助分析如何最快找到没有人的淋浴头。
             </div>
-            <div class="introduction_text" style="font-style: oblique; text-decoration: underline;">
+            <!-- <div class="introduction_text" style="font-style: oblique; text-decoration: underline;">
                 本工具还在持续更新中，呈现界面并非最终版本。
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
