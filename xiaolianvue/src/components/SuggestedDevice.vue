@@ -28,11 +28,11 @@ function formatDate(t) {
 
     return hours + " 时 " + minutes + " 分 " + seconds + " 秒"
 }
-var timeText=defineModel('suggestedDevice_timeText')
-timeText.value=formatDate(new Date().getTime()-props.tme)
-var timer=setInterval(function(){
-    timeText.value=formatDate(new Date().getTime()-props.tme)
-},1000)
+var timeText = defineModel('suggestedDevice_timeText')
+timeText.value = formatDate(new Date().getTime() - props.tme)
+var timer = setInterval(function () {
+    timeText.value = formatDate(new Date().getTime() - props.tme)
+}, 1000)
 </script>
 
 <template>
@@ -47,12 +47,13 @@ var timer=setInterval(function(){
 </template>
 
 <style>
-.suggested_device_container{
+.suggested_device_container {
     display: flex;
     border-radius: 3px;
     box-shadow: 2px solid black;
 }
-.suggested_device_id{
+
+.suggested_device_id {
     padding-right: 6px;
     font-weight: 600;
 

@@ -28,6 +28,9 @@ var showWaitMoreStatus = ref(false)
         <Introduction />
         <WarningNotRunning />
         <MapRenderer :devicesList="devicesList" :avgWashTime="avgWashTimeText" />
+        <AnalysisDisplayer :wash-avg-time="formatDate(avgWashTimeText)" :use-count="requestTimes"
+            :wash-count="washCount" />
+        <Sponsor />
         <div class="top_container">
             <div class="suggested_tips">
                 推荐去尝试可能没人的淋浴头：
@@ -50,7 +53,6 @@ var showWaitMoreStatus = ref(false)
                     {{ showTryMoreStatus ? "收起" : "展开" }}
                 </div>
             </div>
-
         </div>
         <div class="top_container">
             <div class="suggested_tips">
@@ -74,11 +76,7 @@ var showWaitMoreStatus = ref(false)
                     {{ showWaitMoreStatus ? "收起" : "展开" }}
                 </div>
             </div>
-
         </div>
-        <AnalysisDisplayer :wash-avg-time="formatDate(avgWashTimeText)" :use-count="requestTimes"
-            :wash-count="washCount" />
-        <Sponsor />
         <div class="app_container">
             <div class="device_container" v-for="device in devicesList">
                 <Device :name="device.name" :id="device.id" :status="device.status" :tme="device.time"
@@ -86,7 +84,6 @@ var showWaitMoreStatus = ref(false)
             </div>
         </div>
     </div>
-
 </template>
 
 <script>

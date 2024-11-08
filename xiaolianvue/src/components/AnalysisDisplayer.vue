@@ -16,7 +16,7 @@ const props = defineProps({
 
 <template>
     <div class="tipsbar_bg">
-        <LineMdCompassTwotone class="tipsbar_icon"/>
+        <LineMdCompassTwotone class="tipsbar_icon" />
         <div class="tipsbar_container">
             <div class="tipsbar_column">
                 <div class="tipsbar_text">

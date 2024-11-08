@@ -4,7 +4,7 @@ import LineMdEmojiSmileWinkTwotone from '~icons/line-md/emoji-smile-wink-twotone
 
 <template>
     <div class="introduction_bg">
-        <LineMdEmojiSmileWinkTwotone class="introduction_icon"/>
+        <LineMdEmojiSmileWinkTwotone class="introduction_icon" />
         <div class="introduction_container">
             <div class="introduction_title">
                 这是什么？
@@ -20,14 +20,15 @@ import LineMdEmojiSmileWinkTwotone from '~icons/line-md/emoji-smile-wink-twotone
 </template>
 
 <style>
-.introduction_icon{
+.introduction_icon {
     padding-right: 8px;
     padding-left: 7px;
     color: white;
     min-height: 28px;
     min-width: 28px;
 }
-.introduction_bg{
+
+.introduction_bg {
     margin-block: 9px;
     background-color: #ffd000;
     display: flex;
@@ -35,14 +36,16 @@ import LineMdEmojiSmileWinkTwotone from '~icons/line-md/emoji-smile-wink-twotone
     padding: 10px 7px;
     border-radius: 10px;
     font-weight: 400;
-    
+
 }
-.introduction_title{
+
+.introduction_title {
     color: white;
     font-size: medium;
     font-weight: 600;
 }
-.introduction_text{
+
+.introduction_text {
     color: white;
     font-size: smaller;
     font-weight: 500;

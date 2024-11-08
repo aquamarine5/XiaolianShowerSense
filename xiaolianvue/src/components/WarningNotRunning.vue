@@ -5,13 +5,13 @@ check()
 setInterval(check, 60000)
 function check() {
     var hour = new Date().getHours()
-    isrunning.value = hour < 13 || hour > 23
+    isrunning.value = hour < 13 || hour >= 23
 }
 </script>
 
 <template>
     <div class="warning_notrunning_bg" v-if="isrunning">
-        <LineMdAlertLoop class="warning_notrunning_icon"/>
+        <LineMdAlertLoop class="warning_notrunning_icon" />
         <div class="warning_notrunning_container">
             <div class="warning_notrunning_title">
                 请注意！

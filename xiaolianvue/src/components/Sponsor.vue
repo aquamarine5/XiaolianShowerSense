@@ -3,12 +3,12 @@ import { ElIcon, ElMessageBox } from 'element-plus';
 import { h } from 'vue';
 import LineMdCoffeeHalfEmptyTwotoneLoop from '~icons/line-md/coffee-half-empty-twotone-loop?width=28px&height=28px';
 
-function click(){
+function click() {
     ElMessageBox({
-        title:"推荐使用微信支付",
-        message:h('img',{
-            src:"http://47.96.24.132/sponsor.jpg",
-            style:""
+        title: "推荐使用微信支付",
+        message: h('img', {
+            src: "http://47.96.24.132/sponsor.jpg",
+            style: ""
         })
     })
 }
@@ -16,7 +16,7 @@ function click(){
 
 <template>
     <div class="sponsor_bg">
-        <LineMdCoffeeHalfEmptyTwotoneLoop class="sponsor_icon"/>
+        <LineMdCoffeeHalfEmptyTwotoneLoop class="sponsor_icon" />
         <div class="sponsor_container" @click="click">
             <div class="sponsor_title">
                 此工具真的有帮助？
@@ -29,14 +29,15 @@ function click(){
 </template>
 
 <style>
-.sponsor_icon{
+.sponsor_icon {
     padding-right: 10px;
     padding-left: 7px;
     color: white;
     min-height: 28px;
     min-width: 28px;
 }
-.sponsor_bg{
+
+.sponsor_bg {
     cursor: pointer;
     margin-block: 9px;
     background-color: #ea7293;
@@ -45,14 +46,16 @@ function click(){
     padding: 10px 7px;
     border-radius: 10px;
     font-weight: 400;
-    
+
 }
-.sponsor_title{
+
+.sponsor_title {
     color: white;
     font-size: medium;
     font-weight: 600;
 }
-.sponsor_text{
+
+.sponsor_text {
     color: white;
     font-size: smaller;
     font-weight: 500;

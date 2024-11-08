@@ -18,15 +18,14 @@ function jumpToDouyin() {
             <div class="topbar_title">
                 XiaolianShowerSense
             </div>
-            <LineMdTiktok class="topbar_douyin" @click="jumpToDouyin"/>
-            <LineMdGithubTwotone class="topbar_github" @click="jumpToGithub"/>
+            <LineMdTiktok class="topbar_douyin" @click="jumpToDouyin" />
+            <LineMdGithubTwotone class="topbar_github" @click="jumpToGithub" />
         </div>
     </div>
-    
+
 </template>
 
 <style>
-
 .topbar_bg {
     background-color: #03a9f4;
     border-radius: 0px 0px 10px 10px;
@@ -52,7 +51,8 @@ function jumpToDouyin() {
     justify-self: end;
     margin-left: 9px;
 }
-.topbar_douyin{
+
+.topbar_douyin {
     cursor: pointer;
     justify-self: end;
     margin-left: auto;

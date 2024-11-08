@@ -21,7 +21,7 @@ function formatDate(t) {
 const roadDisplayTime = ref(0)
 const roadDisplayValue = ref(0)
 function refreshTime() {
-    if (!props.isready) return 0; 
+    if (!props.isready) return 0;
     let value = 0;
     function calculatedValue(element) {
         if (element == null) return
@@ -83,17 +83,18 @@ const roadDisplayColor = computed(() => {
 </template>
 
 <style>
-
 .road_neighbours {
     display: flex;
     gap: 5px;
     justify-content: space-evenly;
 }
-.road_display{
+
+.road_display {
     transition: background-color 0.3s ease-in-out;
-    color:#FFF;
+    color: #FFF;
     border-radius: 999px 400px 400px 999px;
 }
+
 .road_tips {
     font-family: "Gilroy";
     text-align: end;

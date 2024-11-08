@@ -19,7 +19,7 @@ wnetwork.get("/api/map?id=" + sessionStorage.getItem("residenceId"))
         contributors.value = "地图数据由：" + response.data.data.contributors + " 提供。"
     })
 const mapData = computed(() => {
-    if(isShowMap.value==false) return []
+    if (isShowMap.value == false) return []
     let newMapData = []
     roadMap.forEach(element => {
         let roadData = [[], []]
@@ -79,7 +79,7 @@ const isReady = computed(() => {
 
 
 <style>
-.map_splitline{
+.map_splitline {
     background-color: rgb(180, 180, 180);
     border-radius: 99px;
     opacity: 0.5;
@@ -87,13 +87,15 @@ const isReady = computed(() => {
     height: 1.5px;
     width: 95%;
 }
-.map_contributors{
+
+.map_contributors {
     font-size: small;
-    color:gray;
+    color: gray;
     width: 100%;
     text-align: left;
     padding-top: 5px;
 }
+
 .map_example {
     width: 100%;
 }
@@ -138,7 +140,7 @@ const isReady = computed(() => {
 }
 
 .map_nodata_icon {
-    
+
     min-height: 28px;
     min-width: 28px;
 }
