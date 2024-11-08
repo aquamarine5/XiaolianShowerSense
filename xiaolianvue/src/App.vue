@@ -9,6 +9,7 @@ import WarningNotRunning from './components/WarningNotRunning.vue';
 import wnetwork from './wnetwork';
 import { nextTick, ref } from 'vue';
 import MapRenderer from './components/map/MapRenderer.vue';
+import AnalysisDisplayer from './components/AnalysisDisplayer.vue';
 
 var residenceId = sessionStorage.getItem("residenceId")
 if (residenceId == null) {
@@ -21,12 +22,12 @@ var showWaitMoreStatus = ref(false)
 </script>
 
 <template>
-    <Topbar :wash-avg-time="formatDate(avgWashTimeText)" :use-count="requestTimes" :wash-count="washCount" />
+    <Topbar />
     <div style="margin: 10px;">
         <ResidenceList />
         <Introduction />
         <WarningNotRunning />
-        <MapRenderer ref="map" :devicesList="devicesList" :avgWashTime="avgWashTimeText"/>
+        <MapRenderer :devicesList="devicesList" :avgWashTime="avgWashTimeText" />
         <div class="top_container">
             <div class="suggested_tips">
                 推荐去尝试可能没人的淋浴头：
@@ -75,6 +76,8 @@ var showWaitMoreStatus = ref(false)
             </div>
 
         </div>
+        <AnalysisDisplayer :wash-avg-time="formatDate(avgWashTimeText)" :use-count="requestTimes"
+            :wash-count="washCount" />
         <Sponsor />
         <div class="app_container">
             <div class="device_container" v-for="device in devicesList">
@@ -135,7 +138,7 @@ export default {
                     var out = []
                     for (let index = 1; index < json.length; index++) {
                         let element = json.devices[index]
-                        out[index-1] = {
+                        out[index - 1] = {
                             id: index,
                             status: element.status,
                             time: element.time,

@@ -4,7 +4,8 @@ const props=defineProps([
 ])
 function formatColor(device) {
     let s=device.status
-    if(s==2&&props.avgWashTime/1000<(new Date().getTime()/1000-device.time/1000)) return '#F1441D'
+    if(s==2&&props.avgWashTime<(new Date().getTime()-device.time)) return '#F1441D'
+    if(s==1&&new Date().getTime()-device.wtime>360000) return '#3BC8B4'
     if (s == 1) return '#A9A9A9'
     else if (s == 2) return '#1661AB'
     else return '#FBDA41'
@@ -25,23 +26,29 @@ function fixedId(id){
             <div class="mapwasher_badge" :style="{backgroundColor: '#A9A9A9'}">
             00
             </div>
-            当前可用
+            未在使用
+        </div>
+        <div class="mapwasher_example">
+            <div class="mapwasher_badge" :style="{backgroundColor: '#3BC8B4'}">
+            01
+            </div>
+            应该无人
         </div>
         <div class="mapwasher_example">
             <div class="mapwasher_badge" :style="{backgroundColor: '#1661AB'}">
-            01
+            02
             </div>
             正在使用
         </div>
         <div class="mapwasher_example">
             <div class="mapwasher_badge" :style="{backgroundColor: '#F1441D'}">
-            10
+            03
             </div>
             洗了好久
         </div>
         <div class="mapwasher_example">
             <div class="mapwasher_badge" :style="{backgroundColor: '#FBDA41'}">
-            11
+            04
             </div>
             发生故障
         </div>
@@ -61,7 +68,8 @@ function fixedId(id){
     justify-content: space-evenly;
 }
 .mapwasher_badge{
-    font-family: "Gilroy";
+    font-family: "Gilroy", sans-serif;
+    vertical-align: middle;
     height: 20px;
     width: 20px;
     text-align: center;

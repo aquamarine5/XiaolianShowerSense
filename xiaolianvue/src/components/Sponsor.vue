@@ -33,6 +33,8 @@ function click(){
     padding-right: 10px;
     padding-left: 7px;
     color: white;
+    min-height: 28px;
+    min-width: 28px;
 }
 .sponsor_bg{
     cursor: pointer;

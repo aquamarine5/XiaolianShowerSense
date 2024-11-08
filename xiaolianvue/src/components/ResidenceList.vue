@@ -22,7 +22,7 @@ function onChangeSelectedValue(value) {
 <template>
     <div class="residenceList">
         <div class="residenceList_tips">
-            请选择要查询的宿舍：
+            查询宿舍：
         </div>
         <div class="residenceList_select">
             <ElSelect v-model="selectedValue" placeholder="选择宿舍" style="width: 240px;"
