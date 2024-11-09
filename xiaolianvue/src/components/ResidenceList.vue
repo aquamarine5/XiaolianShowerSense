@@ -44,6 +44,9 @@ function onChangeSelectedValue(value) {
 </template>
 
 <style>
+.residenceList_tips{
+    font-size: smaller;
+}
 .residenceList_notice_icon {
     padding-right: 11px;
     padding-left: 8px;

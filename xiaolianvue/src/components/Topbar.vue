@@ -2,7 +2,6 @@
 import LineMdTiktok from '~icons/line-md/tiktok?width=32px&height=32px';
 import LineMdGithubTwotone from '~icons/line-md/github-twotone?width=32px&height=32px';
 
-
 function jumpToGithub() {
     window.open("https://github.com/aquamarine5/XiaolianWebHelper", "_blanks")
 }
@@ -25,7 +24,8 @@ function jumpToDouyin() {
 
 </template>
 
-<style>
+<style scoped>
+@import "../font.css";
 .topbar_bg {
     background-color: #03a9f4;
     border-radius: 0px 0px 10px 10px;

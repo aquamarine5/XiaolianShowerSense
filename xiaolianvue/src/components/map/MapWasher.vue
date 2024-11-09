@@ -57,6 +57,7 @@ function fixedId(id) {
 </template>
 
 <style>
+@import "../../font.css";
 .mapwasher_example {
     font-size: small;
     display: flex;

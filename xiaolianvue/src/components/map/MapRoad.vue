@@ -83,6 +83,7 @@ const roadDisplayColor = computed(() => {
 </template>
 
 <style>
+@import "../../font.css";
 .road_neighbours {
     display: flex;
     gap: 5px;
