@@ -47,8 +47,10 @@ const props = defineProps({
 </template>
 
 <style lang="css" scoped>
+@import "../font.css";
 .tipsbar_column {
     display: flex;
+    align-items: center;
 }
 
 .tipsbar_container {
@@ -79,5 +81,6 @@ const props = defineProps({
 
 .tipsbar_value {
     color: white;
+    font-family: "Gilroy",sans-serif;
 }
 </style>

@@ -30,7 +30,8 @@ function refreshTime() {
             value += predictedValue < 0 ? 5 * 60 : predictedValue
         }
         else if (element.status == 1) {
-            value += 0
+            if (new Date().getTime() - element.wtime <= 360000)
+                value += 1 * 60
         } else {
             value += 3 * 60
         }
@@ -84,6 +85,7 @@ const roadDisplayColor = computed(() => {
 
 <style>
 @import "../../font.css";
+
 .road_neighbours {
     display: flex;
     gap: 5px;

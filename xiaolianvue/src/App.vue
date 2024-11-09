@@ -80,7 +80,7 @@ var showWaitMoreStatus = ref(false)
         </div>
         <div class="app_container">
             <div class="remove_tips">
-                <LineMdFileDocumentMinusTwotone/>
+                <LineMdFileDocumentMinusTwotone />
                 下面这玩意太丑了 找个时间就删了他🧐
             </div>
             <div class="device_container" v-for="device in devicesList">
@@ -206,13 +206,14 @@ export default {
 </script>
 
 <style>
-.remove_tips{
+.remove_tips {
     display: flex;
     align-items: center;
     border: #0097a7 3px solid;
     border-radius: 10px;
     margin-bottom: 7px;
 }
+
 .suggested_detail {
     font-weight: 400;
     font-size: 12px;
