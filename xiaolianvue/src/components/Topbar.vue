@@ -16,6 +16,9 @@ function jumpToDouyin() {
         <div class="topbar_container">
             <div class="topbar_title">
                 XiaolianShowerSense
+                <div class="topbar_version">
+                    v0.6
+                </div>
             </div>
             <LineMdTiktok class="topbar_douyin" @click="jumpToDouyin" />
             <LineMdGithubTwotone class="topbar_github" @click="jumpToGithub" />
@@ -30,7 +33,10 @@ function jumpToDouyin() {
     background-color: #03a9f4;
     border-radius: 0px 0px 10px 10px;
 }
-
+.topbar_version{
+    font-size: small;
+    padding-left: 2px;
+}
 .topbar_container {
     padding-block: 8px;
     align-items: center;
@@ -40,9 +46,10 @@ function jumpToDouyin() {
 }
 
 .topbar_title {
+    display: flex;
     font-family: 'Gilroy', sans-serif;
     font-weight: 800;
-    font-size: 22px;
+    font-size: 20px;
     color: whitesmoke;
 }
 

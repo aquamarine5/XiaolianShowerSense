@@ -48,9 +48,12 @@ const isReady = computed(() => {
             <div class="map_title">
                 <LineMdMapMarkerRadiusTwotone />
                 浴室地图：
+                <div class="map_test">
+                    BETA
+                </div>
             </div>
             <MapRoad v-for="(road, index) in mapData" :roadData="road" :avgWashTime="props.avgWashTime"
-                :isready="isReady" :key="index"/>
+                :isready="isReady" :key="index" />
         </div>
         <div class="map_nodata" v-else>
             <div class="map_nodata_tips">
@@ -79,6 +82,17 @@ const isReady = computed(() => {
 
 
 <style>
+.map_test {
+    font-family: "Gilroy", sans-serif;
+    cursor: help;
+    color: white;
+    font-weight: 600;
+    font-size: small;
+    border-radius: 20px;
+    padding: 2px 5px;
+    background-image: linear-gradient(135deg, #1BF1FD, #E4A6E3, #F3EFCC);
+}
+
 .map_splitline {
     background-color: rgb(180, 180, 180);
     border-radius: 99px;
