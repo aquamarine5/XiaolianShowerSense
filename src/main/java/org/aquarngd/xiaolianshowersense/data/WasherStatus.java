@@ -6,14 +6,16 @@ public enum WasherStatus {
     FAULT(0);
 
     private final int id;
-    WasherStatus(int id){
-        this.id=id;
+
+    WasherStatus(int id) {
+        this.id = id;
     }
-    public int value(){
+
+    public int value() {
         return id;
     }
 
-    public static WasherStatus valueOf(int value){
+    public static WasherStatus valueOf(int value) {
         return switch (value) {
             case 1 -> NOT_USING;
             case 2 -> USING;
