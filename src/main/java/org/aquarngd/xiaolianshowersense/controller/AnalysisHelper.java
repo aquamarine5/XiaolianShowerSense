@@ -9,11 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AnalysisHelper {
-    private final XiaolianShowerSenseApplication xiaolianShowerSenseApplication;
     private final ResidenceController residenceController;
 
-    public AnalysisHelper(XiaolianShowerSenseApplication xiaolianShowerSenseApplication, ResidenceController residenceController) {
-        this.xiaolianShowerSenseApplication = xiaolianShowerSenseApplication;
+    public AnalysisHelper(ResidenceController residenceController) {
         this.residenceController = residenceController;
     }
 

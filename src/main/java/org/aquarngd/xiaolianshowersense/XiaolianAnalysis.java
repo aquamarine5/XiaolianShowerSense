@@ -38,16 +38,28 @@ public class XiaolianAnalysis {
             if (mapdataString == null) {
                 continue;
             }
+            int residenceId = sqlRowSet.getInt("residenceId");
             JSONArray mapData = JSONArray.parseArray(mapdataString);
             List<List<Integer>> mapAllRoadData = new ArrayList<>();
             for (int i = 0; i < mapData.size(); i++) {
                 List<Integer> mapDataList = mapData.getJSONArray(i).getJSONArray(0).toJavaList(Integer.class);
                 mapDataList.addAll(mapData.getJSONArray(i).getJSONArray(1).toJavaList(Integer.class));
-                mapDataList.removeIf(value->value==-1);
+                mapDataList.removeIf(value -> value == -1);
                 mapAllRoadData.add(mapDataList);
 
             }
-            residencesMap.put(sqlRowSet.getInt("residenceId"), mapAllRoadData);
+            residencesMap.put(residenceId, mapAllRoadData);
+            if (!residencesLastWashTime.containsKey(residenceId)) {
+                residencesLastWashTime.put(residenceId, new HashMap<>());
+            }
+            if (!residencesLastUsedTime.containsKey(residenceId)) {
+                residencesLastUsedTime.put(residenceId, new HashMap<>());
+            }
+            SqlRowSet residenceTimes = jdbcTemplate.queryForRowSet("SELECT lastUsedTime,lastWashTime,deviceId FROM `" + sqlRowSet.getInt("residenceId") + "`");
+            while (residenceTimes.next()) {
+                residencesLastWashTime.get(residenceId).put(residenceTimes.getInt("deviceId"), residenceTimes.getTimestamp("lastWashTime").getTime());
+                residencesLastUsedTime.get(residenceId).put(residenceTimes.getInt("deviceId"), residenceTimes.getTimestamp("lastUsedTime").getTime());
+            }
         }
         logger.warn("residencesMap: {}", residencesMap);
         this.jdbcTemplate = jdbcTemplate;
@@ -55,7 +67,7 @@ public class XiaolianAnalysis {
 
     public void UpdateAnalysis(JSONArray residences, int residenceId) {
         logger.warn("residences: {}", residenceId);
-        if (!residences.contains(residenceId)) return;
+        if (!residencesMap.containsKey(residenceId)) return;
         logger.warn("residences: {}", residenceId);
         CheckDatabase(residenceId);
         Map<Integer, Integer> predictedRoadTime = new HashMap<>();
@@ -63,11 +75,10 @@ public class XiaolianAnalysis {
             JSONObject washer = residences.getJSONObject(i);
             int deviceId = washer.getInteger("deviceId");
             int calculatedTime = 0;
-            if (washer.getInteger("status") == 2) {
-                long predictedTime = residencesLastWashTime.get(residenceId).get(deviceId) -
-                        (System.currentTimeMillis() - residencesLastWashTime.get(residenceId).get(washer.getInteger("deviceId")));
+            if (washer.getInteger("deviceStatus") == 2) {
+                long predictedTime = averageWashTime - (System.currentTimeMillis() - residencesLastUsedTime.get(residenceId).get(deviceId));
                 calculatedTime = predictedTime < 0 ? 5 * 60 : (int) (predictedTime / 1000);
-            } else if (washer.getInteger("status") == 1) {
+            } else if (washer.getInteger("deviceStatus") == 1) {
                 if (System.currentTimeMillis() - residencesLastWashTime.get(residenceId).get(deviceId) <= 360000) {
                     calculatedTime = 60;
                 }
@@ -76,43 +87,62 @@ public class XiaolianAnalysis {
             }
             predictedRoadTime.put(washer.getInteger("dispNo"), calculatedTime);
         }
+        logger.warn("predictedRoadTime: {}", predictedRoadTime);
         List<Integer> allPredictedTime = new ArrayList<>();
-        for (int i = 0; i < residencesMap.size(); i++) {
+        for (int i = 0; i < residencesMap.get(residenceId).size(); i++) {
             int roadPredictedTime = 0;
-            for (int j = 0; j < residencesMap.get(i).size(); j++) {
+            for (int j = 0; j < residencesMap.get(residenceId).get(i).size(); j++) {
                 roadPredictedTime += predictedRoadTime.get(residencesMap.get(residenceId).get(i).get(j));
             }
             allPredictedTime.add(roadPredictedTime);
         }
         LocalTime currentTime = LocalTime.now();
-        String valueName = String.format("%s%d",
-                currentTime.getHour() < 10 ? "9" + currentTime.getHour() : currentTime.getHour(),
-                (currentTime.getMinute() / 10) * 10);
+        String valueName = String.format("8%s%s",
+                currentTime.getHour() < 10 ? "0" + currentTime.getHour() : currentTime.getHour(),
+                currentTime.getMinute() < 10 ? "00" : (currentTime.getMinute() / 10) * 10);
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT " +
                 "minv,avgv,maxv" +
                 " FROM `" + residenceId + "_analysis` WHERE timePos=" + valueName);
+        logger.warn("allPredictedTime: {}", allPredictedTime);
+        logger.warn(String.valueOf(allPredictedTime.stream().min(Integer::compareTo).orElse(0)));
+        logger.warn(String.valueOf(allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size()));
+
+        logger.warn(String.valueOf(allPredictedTime.stream().max(Integer::compareTo).orElse(0)));
         if (sqlRowSet.next()) {
             int currentMinData = sqlRowSet.getInt("minv");
+            if (currentMinData == 0)
+                jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET minv = " +
+                        allPredictedTime.stream().min(Integer::compareTo).orElse(0) +
+                        " WHERE timePos=" + valueName);
             int currentAvgData = sqlRowSet.getInt("avgv");
+            if (currentAvgData == 0)
+                jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET avgv = " +
+                        allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size() +
+                        " WHERE timePos=" + valueName);
             int currentMaxData = sqlRowSet.getInt("maxv");
+            if (currentMaxData == 0)
+                jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET maxv = " +
+                        allPredictedTime.stream().max(Integer::compareTo).orElse(0) +
+                        " WHERE timePos=" + valueName);
+
             jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET minv = " +
-                    (currentMinData + allPredictedTime.stream().mapToInt(Integer::intValue).sum()) / 2 +
+                    (currentMinData + allPredictedTime.stream().min(Integer::compareTo).orElse(currentMinData)) / 2 +
                     " WHERE timePos=" + valueName);
             jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET avgv = " +
-                    (currentAvgData + allPredictedTime.stream().mapToInt(Integer::intValue).sum()) / 2 +
+                    (currentAvgData + allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size()) / 2 +
                     " WHERE timePos=" + valueName);
             jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET maxv = " +
-                    (currentMaxData + allPredictedTime.stream().mapToInt(Integer::intValue).sum()) / 2 +
+                    (currentMaxData + allPredictedTime.stream().max(Integer::compareTo).orElse(currentMaxData)) / 2 +
                     " WHERE timePos=" + valueName);
         } else {
             jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET minv = " +
-                    allPredictedTime.stream().mapToInt(Integer::intValue).sum() +
+                    allPredictedTime.stream().min(Integer::compareTo).orElse(0) +
                     " WHERE timePos=" + valueName);
             jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET avgv = " +
-                    allPredictedTime.stream().mapToInt(Integer::intValue).sum() +
+                    allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size() +
                     " WHERE timePos=" + valueName);
             jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET maxv = " +
-                    allPredictedTime.stream().mapToInt(Integer::intValue).sum() +
+                    allPredictedTime.stream().max(Integer::compareTo).orElse(0) +
                     " WHERE timePos=" + valueName);
         }
     }
@@ -126,6 +156,14 @@ public class XiaolianAnalysis {
                     timePos INT PRIMARY KEY
                     ) CHARACTER SET utf8mb4;
                     """);
+            for (int i = 0; i < 24; i++) {
+                for (int j = 0; j < 6; j++) {
+                    String valueName = String.format("8%s%s",
+                            i < 10 ? "0" + i : i,
+                            j == 0 ? "00" : j * 10);
+                    jdbcTemplate.execute("INSERT INTO `" + residenceId + "_analysis` (minv,avgv,maxv,timePos) VALUES (0,0,0," + valueName + ")");
+                }
+            }
         }
     }
 

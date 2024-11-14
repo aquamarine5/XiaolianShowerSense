@@ -7,15 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 @EnableAsync
-@EnableJpaRepositories(basePackages = "org.aquarngd.xiaolianshowersense.data")
-@EntityScan(basePackages = "org.aquarngd.xiaolianshowersense.data")
+@EntityScan(basePackages = "org.aquarngd.xiaolianshowersense")
 @EnableScheduling
 @SpringBootApplication
 public class XiaolianShowerSenseApplication {
@@ -34,7 +35,7 @@ public class XiaolianShowerSenseApplication {
     }
 
     @Async
-    @Scheduled(cron = "0/10 * 13-22 * * ? ")
+    @Scheduled(cron = "0/10 * 13-23 * * ? ")
     public void refreshWasherDevicesData() {
         residenceController.updateAllResidences();
     }
