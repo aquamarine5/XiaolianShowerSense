@@ -79,7 +79,11 @@ public class ResidenceController {
                 residenceId INT PRIMARY KEY,
                 floorId INT NOT NULL,
                 buildingId INT NOT NULL,
-                name TEXT NOT NULL
+                name TEXT NOT NULL,
+                mapdata JSON,
+                contributors TEXT,
+                analyseStartTime TEXT,
+                analyseEndTime TEXT
                 ) CHARACTER SET utf8mb4""");
         for (int buildingId : supportedResidenceBuildingsId) {
             JSONObject residenceInfo = webPortal.sendPostRequest("https://netapi.xiaolianhb.com/m/choose/stu/residence/bathroom/byBuilding",
