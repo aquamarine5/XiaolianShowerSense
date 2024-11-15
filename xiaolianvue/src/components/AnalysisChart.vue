@@ -1,6 +1,7 @@
 <script setup>
 import wnetwork from '@/wnetwork';
 import * as echarts from 'echarts';
+import { formatter } from 'element-plus';
 
 </script>
 <template>
@@ -21,6 +22,18 @@ function formatDate(t) {
     if (hours == "00")
         return minutes + " 分 " + seconds + " 秒"
     return hours + " 时 " + minutes + " 分 " + seconds + " 秒"
+}
+function formatDateLined(t) {
+    var seconds = Math.floor((t) % 60),
+        minutes = Math.floor((t / 60) % 60),
+        hours = Math.floor((t / (60 * 60)) % 24)
+
+    hours = (hours < 10) ? "0" + hours : hours
+    minutes = (minutes < 10) ? "0" + minutes : minutes
+    seconds = (seconds < 10) ? "0" + seconds : seconds
+    if (hours == "00")
+        return minutes + "分\n" + seconds + "秒"
+    return hours + "时\n" + minutes + "分\n" + seconds + "秒"
 }
 export default {
     mounted() {
@@ -55,7 +68,15 @@ export default {
                     data: xAxisData
                 },
                 yAxis: {
-                    type: 'value'
+                    type: 'value',
+                    axisLabel:{
+                        formatter:function(value){
+                            return formatDateLined(value);
+                        }
+                    }
+                },
+                grid:{
+                    left:40
                 },
                 series: [{
                     name: "最小值",

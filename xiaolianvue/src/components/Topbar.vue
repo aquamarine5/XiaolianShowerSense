@@ -17,7 +17,7 @@ function jumpToDouyin() {
             <div class="topbar_title">
                 XiaolianShowerSense
                 <div class="topbar_version">
-                    v0.6
+                    v0.7beta
                 </div>
             </div>
             <LineMdTiktok class="topbar_douyin" @click="jumpToDouyin" />
@@ -40,7 +40,7 @@ function jumpToDouyin() {
 .topbar_container {
     padding-block: 8px;
     align-items: center;
-    padding-inline: 20px;
+    padding-inline: 16px;
     display: flex;
     height: 40px;
 }
