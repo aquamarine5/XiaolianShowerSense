@@ -82,8 +82,8 @@ public class ResidenceController {
                 name TEXT NOT NULL,
                 mapdata JSON,
                 contributors TEXT,
-                analyseStartTime TEXT,
-                analyseEndTime TEXT
+                analyseStartTime INT,
+                analyseEndTime INT
                 ) CHARACTER SET utf8mb4""");
         for (int buildingId : supportedResidenceBuildingsId) {
             JSONObject residenceInfo = webPortal.sendPostRequest("https://netapi.xiaolianhb.com/m/choose/stu/residence/bathroom/byBuilding",
@@ -175,7 +175,7 @@ public class ResidenceController {
     public void updateAllResidences() {
         if (!isDatabaseExisted("residenceIndex")) createResidenceIndexDatabase();
         logger.info("Update All Residences.");
-        SqlRowSet sqlRowSet = getJdbcTemplate().queryForRowSet("SELECT * FROM `residenceIndex`");
+        SqlRowSet sqlRowSet = getJdbcTemplate().queryForRowSet("SELECT * FROM residenceIndex");
         while (sqlRowSet.next()) {
             updateResidence(buildUpdateWasherRequest(
                     sqlRowSet.getInt("buildingId"), sqlRowSet.getInt("residenceId"), sqlRowSet.getInt("floorId")), sqlRowSet.getInt("residenceId"));

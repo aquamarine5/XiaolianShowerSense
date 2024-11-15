@@ -23,7 +23,7 @@ public class MapHelper {
     @CrossOrigin(origins = "*")
     @GetMapping("/map")
     public String GetResidenceMap(@RequestParam int id) {
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT mapdata,contributors FROM `residenceIndex` where residenceId = ?", id);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT mapdata,contributors FROM residenceIndex where residenceId = ?", id);
         JSONObject jsonObject = new JSONObject();
         if (sqlRowSet.next()) {
             jsonObject.put("isShowMap", sqlRowSet.getString("mapdata") != null);

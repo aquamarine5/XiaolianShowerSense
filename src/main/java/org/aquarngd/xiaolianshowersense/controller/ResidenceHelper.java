@@ -24,7 +24,7 @@ public class ResidenceHelper {
     @CrossOrigin(origins = "*")
     @GetMapping("/list")
     public String GetResidenceList() {
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT * FROM `residenceIndex`");
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT * FROM residenceIndex");
         JSONArray result = new JSONArray();
         while (sqlRowSet.next()) {
             result.add(new JSONObject(Map.ofEntries(

@@ -32,7 +32,7 @@ public class XiaolianAnalysis {
 
     public XiaolianAnalysis(JdbcTemplate jdbcTemplate) {
         logger = LoggerFactory.getLogger(XiaolianAnalysis.class);
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT residenceId,mapdata FROM `residenceIndex`");
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT residenceId,mapdata FROM residenceIndex");
         while (sqlRowSet.next()) {
             String mapdataString = sqlRowSet.getString("mapdata");
             if (mapdataString == null) {
