@@ -7,6 +7,7 @@ import org.aquarngd.xiaolianshowersense.XiaolianAnalysis;
 import org.aquarngd.xiaolianshowersense.XiaolianShowerSenseApplication;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ public class AnalysisHelper {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @CrossOrigin(origins = "*")
     @GetMapping("/analysis")
     public JSONObject GetAnalysis(@RequestParam int residenceId) {
         SqlRowSet rs=jdbcTemplate.queryForRowSet("SELECT * FROM `"+residenceId+"_analysis`");
@@ -47,12 +49,13 @@ public class AnalysisHelper {
         }
         jsonObject.put("startTime",startTime);
         jsonObject.put("endTime",endTime);
-        return jsonObject;
+        return UnifiedResponse.Success(jsonObject);
     }
 
+    @CrossOrigin(origins = "*")
     @GetMapping("/force_analyse")
     public JSONObject ForceAnalyse() {
         residenceController.shouldUpdateAnalysis=true;
-        return new JSONObject();
+        return UnifiedResponse.SuccessSignal();
     }
 }
