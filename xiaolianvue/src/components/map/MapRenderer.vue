@@ -49,7 +49,7 @@ const isReady = computed(() => {
                 <LineMdMapMarkerRadiusTwotone />
                 浴室地图：
                 <div class="map_test">
-                    BETA
+                    v0.6 BETA
                 </div>
             </div>
             <MapRoad v-for="(road, index) in mapData" :roadData="road" :avgWashTime="props.avgWashTime"

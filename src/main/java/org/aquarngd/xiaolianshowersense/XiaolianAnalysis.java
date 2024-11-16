@@ -101,14 +101,14 @@ public class XiaolianAnalysis {
                 currentTime.getHour() < 10 ? "0" + currentTime.getHour() : currentTime.getHour(),
                 currentTime.getMinute() < 10 ? "00" : (currentTime.getMinute() / 10) * 10);
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT " +
-                "minv,avgv,maxv" +
+                "minv,avgv,maxv,count" +
                 " FROM `" + residenceId + "_analysis` WHERE timePos=" + valueName);
         logger.warn("allPredictedTime: {}", allPredictedTime);
         logger.warn(String.valueOf(allPredictedTime.stream().min(Integer::compareTo).orElse(0)));
         logger.warn(String.valueOf(allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size()));
-
         logger.warn(String.valueOf(allPredictedTime.stream().max(Integer::compareTo).orElse(0)));
         if (sqlRowSet.next()) {
+            int count = sqlRowSet.getInt("count");
             int currentMinData = sqlRowSet.getInt("minv");
             if (currentMinData == 0)
                 jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET minv = " +
@@ -126,14 +126,15 @@ public class XiaolianAnalysis {
                         " WHERE timePos=" + valueName);
 
             jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET minv = " +
-                    (currentMinData + allPredictedTime.stream().min(Integer::compareTo).orElse(currentMinData)) / 2 +
+                    (currentMinData*count + allPredictedTime.stream().min(Integer::compareTo).orElse(currentMinData)) / (count+1) +
                     " WHERE timePos=" + valueName);
             jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET avgv = " +
-                    (currentAvgData + allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size()) / 2 +
+                    (currentAvgData*count + allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size()) / (count+1) +
                     " WHERE timePos=" + valueName);
             jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET maxv = " +
-                    (currentMaxData + allPredictedTime.stream().max(Integer::compareTo).orElse(currentMaxData)) / 2 +
+                    (currentMaxData*count + allPredictedTime.stream().max(Integer::compareTo).orElse(currentMaxData)) / (count+1) +
                     " WHERE timePos=" + valueName);
+            jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET count = " + (count + 1) + " WHERE timePos=" + valueName);
         } else {
             jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET minv = " +
                     allPredictedTime.stream().min(Integer::compareTo).orElse(0) +
@@ -144,6 +145,7 @@ public class XiaolianAnalysis {
             jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET maxv = " +
                     allPredictedTime.stream().max(Integer::compareTo).orElse(0) +
                     " WHERE timePos=" + valueName);
+            jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET count = 1 WHERE timePos=" + valueName);
         }
     }
 
@@ -153,7 +155,8 @@ public class XiaolianAnalysis {
                     minv INT,
                     avgv INT,
                     maxv INT,
-                    timePos INT PRIMARY KEY
+                    timePos INT PRIMARY KEY,
+                    count INT DEFAULT 0
                     ) CHARACTER SET utf8mb4;
                     """);
             for (int i = 0; i < 24; i++) {

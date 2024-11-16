@@ -1,14 +1,60 @@
 <script setup>
 import wnetwork from '@/wnetwork';
 import * as echarts from 'echarts';
-import { formatter } from 'element-plus';
+import LineMdListIndentedReversed from '~icons/line-md/list-indented-reversed?width=28px&height=28px';
 
 </script>
 <template>
-    <div ref="chart" style="width: 100%; height: 400px;"></div>
+    <div class="analysis_container">
+        <div class="analysis_title">
+            <LineMdListIndentedReversed/>
+            分析图表：
+            <div class="analysis_test">
+                v0.7 BETA
+            </div>
+        </div>
+        <div ref="chart" class="analysis_chart"></div>
+    </div>
 </template>
 <style scoped>
-/* 你的样式代码 */
+.analysis_container{
+    flex-direction: column;
+    width: 100%;
+    display: flex;
+    border-width: 5px;
+    border-style: solid;
+    align-items: center;
+    border-color: transparent;
+    background-image: linear-gradient(to right, #fff, #fff), linear-gradient(-45deg, #fcda9f,#f99178,#0799f9);
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    border-radius: 10px;
+    padding: 8px 12px;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+.analysis_title{
+    gap: 8px;
+    display: flex;
+    align-items: center;
+    padding-bottom: 7px;
+    width: 100%;
+    font-weight: 600;
+}
+.analysis_test{
+    font-family: "Gilroy", sans-serif;
+    cursor: help;
+    color: white;
+    font-weight: 600;
+    font-size: small;
+    border-radius: 20px;
+    padding: 2px 5px;
+    background-image: linear-gradient(135deg, #1BF1FD, #E4A6E3, #F3EFCC);
+}
+.analysis_chart {
+    width: 100%;
+    height: 350px;
+}
 </style>
 <script>
 function formatDate(t) {
@@ -45,10 +91,10 @@ export default {
             let maxData = [];
             for (let i = response.data.data.startTime; i <= response.data.data.endTime; i % 100 == 50 ? i += 50 : i += 10) {
                 let strTimePos = i.toString();
-                xAxisData.push(strTimePos.substring(1, 3) + "时" + strTimePos.substring(3, 5) + "分");
-                minData.push(response.data.data[i.toString()].minv);
-                avgData.push(response.data.data[i.toString()].avgv);
-                maxData.push(response.data.data[i.toString()].maxv);
+                xAxisData.push(strTimePos.substring(1, 3) + " : " + strTimePos.substring(3, 5));
+                minData.push(response.data.data[strTimePos].minv);
+                avgData.push(response.data.data[strTimePos].avgv);
+                maxData.push(response.data.data[strTimePos].maxv);
             }
 
             function getRoundedMinutes() {
@@ -75,14 +121,23 @@ export default {
                         }
                     }
                 },
+                legend: {
+                    data: ["最小值", "平均值", "最大值"]
+                },
                 grid:{
-                    left:40
+                    left: 40,
+                    right: 0,
+                    top: 30,
+                    bottom: 20
                 },
                 series: [{
                     name: "最小值",
                     data: minData,
                     type: 'line',
                     smooth: true,
+                    lineStyle:{
+                        width:2
+                    },
                     tooltip: {
                         valueFormatter: function (value) {
                             return formatDate(value);
@@ -93,6 +148,10 @@ export default {
                     data: avgData,
                     type: 'line',
                     smooth: true,
+                    lineStyle:{
+                        width:3
+                    },
+                    areaStyle:{},
                     tooltip: {
                         valueFormatter: function (value) {
                             return formatDate(value);
@@ -103,6 +162,9 @@ export default {
                     data: maxData,
                     type: 'line',
                     smooth: true,
+                    lineStyle:{
+                        width:2
+                    },
                     tooltip: {
                         valueFormatter: function (value) {
                             return formatDate(value);
@@ -117,11 +179,12 @@ export default {
                         },
                         lineStyle: {
                             type: "solid",
-                            color: "#333333"
+                            color: "#F00",
+                            width:2
                         },
                         data: [{
                             name: "当前时间",
-                            xAxis: nowTime.getHours() + "时" + getRoundedMinutes() + "分"
+                            xAxis: nowTime.getHours() + " : " + getRoundedMinutes()
                         }]
                     }
                 }],
@@ -139,7 +202,6 @@ export default {
                 tooltip: {
                     trigger:"axis"
                 }
-                // 其他图表配置
             });
         });
     }

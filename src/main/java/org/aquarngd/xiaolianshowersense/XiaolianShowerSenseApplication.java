@@ -35,7 +35,7 @@ public class XiaolianShowerSenseApplication {
     }
 
     @Async
-    @Scheduled(cron = "0/10 * 13-23 * * ? ")
+    @Scheduled(cron = "0/10 * 13-22 * * ? ")
     public void refreshWasherDevicesData() {
         residenceController.updateAllResidences();
     }

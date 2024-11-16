@@ -163,12 +163,12 @@ public class ResidenceController {
             xiaolianAnalysis.residencesLastWashTime.put(residenceId,new HashMap<>());
         if(!xiaolianAnalysis.residencesLastUsedTime.containsKey(residenceId))
             xiaolianAnalysis.residencesLastUsedTime.put(residenceId,new HashMap<>());
-        if(shouldUpdateAnalysis){
-            xiaolianAnalysis.UpdateAnalysis(deviceList,residenceId);
-        }
         logger.info("post http.");
         for (int i = 0; i < deviceList.size(); i++) {
             updateShower(deviceList.getJSONObject(i), residenceId);
+        }
+        if(shouldUpdateAnalysis){
+            xiaolianAnalysis.UpdateAnalysis(deviceList,residenceId);
         }
     }
 
