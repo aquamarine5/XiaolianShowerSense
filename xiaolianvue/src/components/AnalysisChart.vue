@@ -9,20 +9,20 @@ import { nextTick, ref } from 'vue';
 <template>
     <div class="analysis_container" v-if="isDataReady">
         <div class="analysis_title">
-            <LineMdListIndentedReversed />
+            <LineMdListIndentedReversed class="analysis_icon" />
             分析图表：
             <div class="analysis_test">
                 v0.7 BETA
             </div>
         </div>
         <div v-if="isShowAnalysis" class="analysis_view">
-            <div ref="chart" class="analysis_chart" ></div>
+            <div ref="chart" class="analysis_chart"></div>
             <div class="analysis_tips">
                 可以拖动缩放查看更多数据哦🧐
             </div>
         </div>
         <div class="analysis_error" v-else>
-            <LineMdBellAlertTwotoneLoop class="analysis_error_icon" />
+            <LineMdBellAlertTwotoneLoop class="analysis_icon" />
             <div class="analysis_error_tips">
                 没有地图数据，也是没办法分析数据的呢😢
             </div>
@@ -30,20 +30,28 @@ import { nextTick, ref } from 'vue';
     </div>
 </template>
 <style scoped>
+.analysis_icon {
+    min-height: 28px;
+    min-width: 28px;
+}
+
 .analysis_tips {
     font-size: small;
     color: #666;
     text-align: center;
 }
+
 .analysis_error {
     display: flex;
     align-items: center;
     width: 100%;
     gap: 10px;
 }
-.analysis_view{
+
+.analysis_view {
     width: 100%;
 }
+
 .analysis_container {
     flex-direction: column;
     width: 100%;

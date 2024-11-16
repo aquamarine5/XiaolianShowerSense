@@ -12,6 +12,7 @@ import { nextTick, ref } from 'vue';
 import MapRenderer from './components/map/MapRenderer.vue';
 import AnalysisDisplayer from './components/AnalysisDisplayer.vue';
 import AnalysisChart from './components/AnalysisChart.vue';
+import Technology from './components/Technology.vue';
 
 var residenceId = sessionStorage.getItem("residenceId")
 if (residenceId == null) {
@@ -34,6 +35,7 @@ var showWaitMoreStatus = ref(false)
         <AnalysisDisplayer :wash-avg-time="formatDate(avgWashTimeText)" :use-count="requestTimes"
             :wash-count="washCount" />
         <Sponsor />
+        <Technology/>
         <div class="remove_tips">
                 <LineMdFileDocumentMinusTwotone />
                 下面这玩意太丑了 找个时间就删了他🧐
