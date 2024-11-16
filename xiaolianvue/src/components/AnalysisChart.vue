@@ -2,22 +2,49 @@
 import wnetwork from '@/wnetwork';
 import * as echarts from 'echarts';
 import LineMdListIndentedReversed from '~icons/line-md/list-indented-reversed?width=28px&height=28px';
+import LineMdBellAlertTwotoneLoop from '~icons/line-md/bell-alert-twotone-loop?width=28px&height=28px';
+import { nextTick, ref } from 'vue';
 
 </script>
 <template>
-    <div class="analysis_container">
+    <div class="analysis_container" v-if="isDataReady">
         <div class="analysis_title">
-            <LineMdListIndentedReversed/>
+            <LineMdListIndentedReversed />
             分析图表：
             <div class="analysis_test">
                 v0.7 BETA
             </div>
         </div>
-        <div ref="chart" class="analysis_chart"></div>
+        <div v-if="isShowAnalysis" class="analysis_view">
+            <div ref="chart" class="analysis_chart" ></div>
+            <div class="analysis_tips">
+                可以拖动缩放查看更多数据哦🧐
+            </div>
+        </div>
+        <div class="analysis_error" v-else>
+            <LineMdBellAlertTwotoneLoop class="analysis_error_icon" />
+            <div class="analysis_error_tips">
+                没有地图数据，也是没办法分析数据的呢😢
+            </div>
+        </div>
     </div>
 </template>
 <style scoped>
-.analysis_container{
+.analysis_tips {
+    font-size: small;
+    color: #666;
+    text-align: center;
+}
+.analysis_error {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+.analysis_view{
+    width: 100%;
+}
+.analysis_container {
     flex-direction: column;
     width: 100%;
     display: flex;
@@ -25,7 +52,7 @@ import LineMdListIndentedReversed from '~icons/line-md/list-indented-reversed?wi
     border-style: solid;
     align-items: center;
     border-color: transparent;
-    background-image: linear-gradient(to right, #fff, #fff), linear-gradient(-45deg, #fcda9f,#f99178,#0799f9);
+    background-image: linear-gradient(to right, #fff, #fff), linear-gradient(-30deg, #fcda9f, #0799f988);
     background-clip: padding-box, border-box;
     background-origin: padding-box, border-box;
     border-radius: 10px;
@@ -33,15 +60,17 @@ import LineMdListIndentedReversed from '~icons/line-md/list-indented-reversed?wi
     box-sizing: border-box;
     margin-top: 10px;
 }
-.analysis_title{
+
+.analysis_title {
     gap: 8px;
     display: flex;
     align-items: center;
-    padding-bottom: 7px;
+    padding-bottom: 1px;
     width: 100%;
     font-weight: 600;
 }
-.analysis_test{
+
+.analysis_test {
     font-family: "Gilroy", sans-serif;
     cursor: help;
     color: white;
@@ -51,12 +80,15 @@ import LineMdListIndentedReversed from '~icons/line-md/list-indented-reversed?wi
     padding: 2px 5px;
     background-image: linear-gradient(135deg, #1BF1FD, #E4A6E3, #F3EFCC);
 }
+
 .analysis_chart {
     width: 100%;
     height: 350px;
 }
 </style>
 <script>
+const isDataReady = ref(false);
+const isShowAnalysis = ref(true);
 function formatDate(t) {
     var seconds = Math.floor((t) % 60),
         minutes = Math.floor((t / 60) % 60),
@@ -85,6 +117,11 @@ export default {
     mounted() {
         wnetwork.get("/api/analysis?residenceId=" + sessionStorage.getItem("residenceId")).then(response => {
             console.log(response.data);
+            isDataReady.value = true;
+            if (response.data.data == "x") {
+                isShowAnalysis.value = false;
+                return;
+            }
             let xAxisData = [];
             let minData = [];
             let avgData = [];
@@ -107,103 +144,109 @@ export default {
             let nowTime = new Date();
             let nowTimePos = 80000 + nowTime.getHours() * 100 + getRoundedMinutes();
             let timePosDuration = response.data.data.endTime - response.data.data.startTime;
-            var chart = echarts.init(this.$refs.chart);
-            chart.setOption({
-                xAxis: {
-                    type: 'category',
-                    data: xAxisData
-                },
-                yAxis: {
-                    type: 'value',
-                    axisLabel:{
-                        formatter:function(value){
-                            return formatDateLined(value);
-                        }
-                    }
-                },
-                legend: {
-                    data: ["最小值", "平均值", "最大值"]
-                },
-                grid:{
-                    left: 40,
-                    right: 0,
-                    top: 30,
-                    bottom: 20
-                },
-                series: [{
-                    name: "最小值",
-                    data: minData,
-                    type: 'line',
-                    smooth: true,
-                    lineStyle:{
-                        width:2
+            nextTick(() => {
+                var chart = echarts.init(this.$refs.chart);
+                chart.setOption({
+                    xAxis: {
+                        type: 'category',
+                        data: xAxisData
                     },
-                    tooltip: {
-                        valueFormatter: function (value) {
-                            return formatDate(value);
-                        }
-                    }
-                }, {
-                    name: "平均值",
-                    data: avgData,
-                    type: 'line',
-                    smooth: true,
-                    lineStyle:{
-                        width:3
-                    },
-                    areaStyle:{},
-                    tooltip: {
-                        valueFormatter: function (value) {
-                            return formatDate(value);
-                        }
-                    }
-                }, {
-                    name: "最大值",
-                    data: maxData,
-                    type: 'line',
-                    smooth: true,
-                    lineStyle:{
-                        width:2
-                    },
-                    tooltip: {
-                        valueFormatter: function (value) {
-                            return formatDate(value);
-                        }
-                    },
-                    markLine: {
-                        symbol: "none",
-                        label: {
-                            show: true,
-                            position: "end",
-                            formatter:"当前时间"
+                    yAxis: {
+                        type: 'value',
+                        axisLabel: {
+                            formatter: function (value) {
+                                return formatDateLined(value);
+                            }
                         },
+                        max: (value) => {
+                            return value.max > 3600 ? value.max : 3600;
+                        },
+                        scale: true
+                    },
+                    legend: {
+                        data: ["最小值", "平均值", "最大值"],
+                    },
+                    grid: {
+                        left: 40,
+                        right: 0,
+                        top: 38,
+                        bottom: 20
+                    },
+                    series: [{
+                        name: "最小值",
+                        data: minData,
+                        type: 'line',
+                        smooth: true,
                         lineStyle: {
-                            type: "solid",
-                            color: "#F00",
-                            width:2
+                            width: 2
                         },
-                        data: [{
-                            name: "当前时间",
-                            xAxis: nowTime.getHours() + " : " + getRoundedMinutes()
-                        }]
+                        tooltip: {
+                            valueFormatter: function (value) {
+                                return formatDate(value);
+                            }
+                        }
+                    }, {
+                        name: "平均值",
+                        data: avgData,
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: {
+                            width: 3
+                        },
+                        areaStyle: {},
+                        tooltip: {
+                            valueFormatter: function (value) {
+                                return formatDate(value);
+                            }
+                        }
+                    }, {
+                        name: "最大值",
+                        data: maxData,
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: {
+                            width: 2
+                        },
+                        tooltip: {
+                            valueFormatter: function (value) {
+                                return formatDate(value);
+                            }
+                        },
+                        markLine: {
+                            symbol: "none",
+                            label: {
+                                show: true,
+                                position: "end",
+                                formatter: "当前时间"
+                            },
+                            lineStyle: {
+                                type: "solid",
+                                color: "#F00",
+                                width: 2
+                            },
+                            data: [{
+                                name: "当前时间",
+                                xAxis: nowTime.getHours() + " : " + getRoundedMinutes()
+                            }]
+                        }
+                    }],
+                    dataZoom: [{
+                        type: 'inside',
+                        filterMode: 'filter',
+                        animation: true,
+                        minSpan: 20,
+                        maxSpan: 100,
+                        start: nowTimePos < response.data.data.startTime ? 0 : (nowTimePos - response.data.data.startTime - 80) / timePosDuration * 100,
+                        end: nowTimePos > response.data.data.endTime ? 0 : (nowTimePos - response.data.data.startTime + 80) / timePosDuration * 100,
+                        show: true,
+                        handleSize: 8
+                    }],
+                    tooltip: {
+                        trigger: "axis"
                     }
-                }],
-                dataZoom: [{
-                    type: 'inside',
-                    filterMode: 'filter',
-                    animation: true,
-                    minSpan: 20,
-                    maxSpan: 100,
-                    start: nowTimePos < response.data.data.startTime ? 0 : (nowTimePos - response.data.data.startTime - 100) / timePosDuration * 100,
-                    end: nowTimePos > response.data.data.endTime ? 0 : (nowTimePos - response.data.data.startTime + 100) / timePosDuration * 100,
-                    show: true,
-                    handleSize: 8
-                }],
-                tooltip: {
-                    trigger:"axis"
-                }
+                });
             });
-        });
+        })
     }
 };
 </script>

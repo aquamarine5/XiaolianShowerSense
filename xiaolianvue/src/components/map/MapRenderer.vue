@@ -44,7 +44,7 @@ const isReady = computed(() => {
 
 <template>
     <div class="map_container">
-        <div class="map_view" v-if="isShowMap">
+        <div class="map_view" >
             <div class="map_title">
                 <LineMdMapMarkerRadiusTwotone />
                 浴室地图：
@@ -52,10 +52,9 @@ const isReady = computed(() => {
                     v0.6 BETA
                 </div>
             </div>
-            <MapRoad v-for="(road, index) in mapData" :roadData="road" :avgWashTime="props.avgWashTime"
+            <MapRoad v-if="isShowMap" v-for="(road, index) in mapData" :roadData="road" :avgWashTime="props.avgWashTime"
                 :isready="isReady" :key="index" />
-        </div>
-        <div class="map_nodata" v-else>
+                <div class="map_nodata" v-else>
             <div class="map_nodata_tips">
                 <LineMdEmojiFrownTwotone class="map_nodata_icon" />
                 <div class="map_nodata_text">
@@ -70,6 +69,8 @@ const isReady = computed(() => {
             </div>
 
         </div>
+        </div>
+        
         <div class="map_contributors" v-if="isShowMap">
             {{ contributors }}
         </div>
