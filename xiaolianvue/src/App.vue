@@ -11,6 +11,8 @@ import wnetwork from './wnetwork';
 import { nextTick, ref } from 'vue';
 import MapRenderer from './components/map/MapRenderer.vue';
 import AnalysisDisplayer from './components/AnalysisDisplayer.vue';
+import AnalysisChart from './components/AnalysisChart.vue';
+import Technology from './components/Technology.vue';
 
 var residenceId = sessionStorage.getItem("residenceId")
 if (residenceId == null) {
@@ -29,9 +31,15 @@ var showWaitMoreStatus = ref(false)
         <Introduction />
         <WarningNotRunning />
         <MapRenderer :devicesList="devicesList" :avgWashTime="avgWashTimeText" />
+        <AnalysisChart />
         <AnalysisDisplayer :wash-avg-time="formatDate(avgWashTimeText)" :use-count="requestTimes"
             :wash-count="washCount" />
         <Sponsor />
+        <Technology/>
+        <div class="remove_tips">
+                <LineMdFileDocumentMinusTwotone />
+                下面这玩意太丑了 找个时间就删了他🧐
+            </div>
         <div class="top_container">
             <div class="suggested_tips">
                 推荐去尝试可能没人的淋浴头：
@@ -79,14 +87,11 @@ var showWaitMoreStatus = ref(false)
             </div>
         </div>
         <div class="app_container">
-            <div class="remove_tips">
-                <LineMdFileDocumentMinusTwotone />
-                下面这玩意太丑了 找个时间就删了他🧐
-            </div>
-            <div class="device_container" v-for="device in devicesList">
+            
+            <!-- <div class="device_container" v-for="device in devicesList">
                 <Device :name="device.name" :id="device.id" :status="device.status" :tme="device.time"
                     :wtime="device.wtime" />
-            </div>
+            </div> -->
         </div>
     </div>
 </template>

@@ -21,26 +21,27 @@ import java.util.Objects;
 
 @Component
 public class XiaolianWebPortal {
-    
+
     Logger logger;
-    String accessToken="";
-    String refreshToken="";
+    String accessToken = "";
+    String refreshToken = "";
 
     XiaolianShowerSenseApplication application;
 
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    public RestTemplate restTemplate=new RestTemplate();
+    public RestTemplate restTemplate = new RestTemplate();
 
-    public XiaolianWebPortal(){
-        logger= LoggerFactory.getLogger(XiaolianWebPortal.class);
+    public XiaolianWebPortal() {
+        logger = LoggerFactory.getLogger(XiaolianWebPortal.class);
     }
 
-    JdbcTemplate getJdbcTemplate(){
+    JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
     }
-    public HttpHeaders getHttpHeaders(@Nullable String referer){
+
+    public HttpHeaders getHttpHeaders(@Nullable String referer) {
         if (!isDatabaseExisted()) {
             createDatabase();
             logger.debug("sql: create data table");
@@ -49,13 +50,13 @@ public class XiaolianWebPortal {
                     "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI1NzQ1ODcwIiwib3MiOiIwIiwiaXNzIjoiaHR0cHM6Ly94aWFvbGlhbi5pbyIsImlhdCI6MTcyNjkwODcyOSwiZXhwIjoxNzI4MjA0NzI5fQ.Bv2wkS8m7O2gHOfDjxFPRHpBgis4KbXO1R-_Kp0ly3ohPjL9hDQWev66_XjGU0DrnS59B5ZWG0MSh7aPi86SBg"));
 
         }
-        if(Objects.equals(accessToken, "")) getTokens();
-        HttpHeaders httpHeaders=new HttpHeaders();
+        if (Objects.equals(accessToken, "")) getTokens();
+        HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         httpHeaders.set("accessToken", accessToken);
         httpHeaders.set("refreshToken", refreshToken);
-        if(referer!=null)
-            httpHeaders.set(HttpHeaders.REFERER,referer);
+        if (referer != null)
+            httpHeaders.set(HttpHeaders.REFERER, referer);
         return httpHeaders;
     }
 
@@ -69,6 +70,7 @@ public class XiaolianWebPortal {
                 requestTimes INT DEFAULT 0
                 ) CHARACTER SET utf8mb4""");
     }
+
     private static JSONObject getLoginJsonObject() {
         JSONObject loginData = new JSONObject();
         loginData.put("appList", new JSONArray());
@@ -85,14 +87,16 @@ public class XiaolianWebPortal {
         loginData.put("lat", "");
         return loginData;
     }
+
     private void getTokens() {
 
         SqlRowSet rs = getJdbcTemplate().queryForRowSet("SELECT * FROM `data`");
         if (rs.next()) {
-            accessToken=rs.getString("accessToken");
-            refreshToken=rs.getString("refreshToken");
+            accessToken = rs.getString("accessToken");
+            refreshToken = rs.getString("refreshToken");
         }
     }
+
     private void relogin() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -106,23 +110,24 @@ public class XiaolianWebPortal {
             String newRefreshToken = response.getJSONObject("data").getString("refreshToken");
             getJdbcTemplate().execute("UPDATE `data` SET accessToken = '" + newAccessToken + "'");
             getJdbcTemplate().execute("UPDATE `data` SET refreshToken = '" + newRefreshToken + "'");
-            accessToken=newAccessToken;
-            refreshToken=newRefreshToken;
+            accessToken = newAccessToken;
+            refreshToken = newRefreshToken;
         }
     }
-    public JSONObject sendPostRequest(String url, JSONObject data, @Nullable String referer){
+
+    public JSONObject sendPostRequest(String url, JSONObject data, @Nullable String referer) {
         return trySendPostRequest(url, data, referer);
     }
-    private JSONObject trySendPostRequest(String url,JSONObject data,@Nullable String referer){
+
+    private JSONObject trySendPostRequest(String url, JSONObject data, @Nullable String referer) {
         HttpEntity<JSONObject> httpPostEntity = new HttpEntity<>(data, getHttpHeaders(referer));
-        ResponseEntity<JSONObject> postResponse=null;
-        try{
-             postResponse= restTemplate.postForEntity(url, httpPostEntity, JSONObject.class);
-        }
-        catch (HttpClientErrorException e) {
+        ResponseEntity<JSONObject> postResponse = null;
+        try {
+            postResponse = restTemplate.postForEntity(url, httpPostEntity, JSONObject.class);
+        } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
                 relogin();
-                postResponse= restTemplate.postForEntity(url, new HttpEntity<>(data, getHttpHeaders(referer)), JSONObject.class);
+                postResponse = restTemplate.postForEntity(url, new HttpEntity<>(data, getHttpHeaders(referer)), JSONObject.class);
             }
             logger.info("error 401: {}", e.getResponseBodyAsString());
         }
@@ -140,13 +145,13 @@ public class XiaolianWebPortal {
             if (rs.next()) return true;
         } catch (SQLException e) {
 
-            logger.error("error sql: {}",e.getMessage());
+            logger.error("error sql: {}", e.getMessage());
         } finally {
             try {
                 if (rs != null) rs.close();
                 if (connection != null) connection.close();
             } catch (SQLException e) {
-                logger.error("error when closed sql: {}",e.getMessage());
+                logger.error("error when closed sql: {}", e.getMessage());
             }
         }
         return false;

@@ -44,32 +44,33 @@ const isReady = computed(() => {
 
 <template>
     <div class="map_container">
-        <div class="map_view" v-if="isShowMap">
+        <div class="map_view">
             <div class="map_title">
-                <LineMdMapMarkerRadiusTwotone />
+                <LineMdMapMarkerRadiusTwotone class="map_icon" />
                 浴室地图：
                 <div class="map_test">
-                    BETA
+                    v0.6 Release Candidate
                 </div>
             </div>
-            <MapRoad v-for="(road, index) in mapData" :roadData="road" :avgWashTime="props.avgWashTime"
+            <MapRoad v-if="isShowMap" v-for="(road, index) in mapData" :roadData="road" :avgWashTime="props.avgWashTime"
                 :isready="isReady" :key="index" />
-        </div>
-        <div class="map_nodata" v-else>
-            <div class="map_nodata_tips">
-                <LineMdEmojiFrownTwotone class="map_nodata_icon" />
-                <div class="map_nodata_text">
-                    Oops! 该宿舍暂无地图数据😢
+            <div class="map_nodata" v-else>
+                <div class="map_nodata_tips">
+                    <LineMdEmojiFrownTwotone class="map_icon" />
+                    <div class="map_nodata_text">
+                        Oops! 该宿舍暂无地图数据😢
+                    </div>
                 </div>
-            </div>
-            <div class="map_nodata_tips">
-                <LineMdFolderPlusTwotone class="map_nodata_icon" />
-                <div class="map_nodata_text">
-                    不过没关系，你可以帮助我们完善地图数据😚
+                <div class="map_nodata_tips">
+                    <LineMdFolderPlusTwotone class="map_icon" />
+                    <div class="map_nodata_text">
+                        不过没关系，你可以帮助我们完善地图数据😚
+                    </div>
                 </div>
-            </div>
 
+            </div>
         </div>
+
         <div class="map_contributors" v-if="isShowMap">
             {{ contributors }}
         </div>
@@ -153,8 +154,7 @@ const isReady = computed(() => {
     font-size: medium;
 }
 
-.map_nodata_icon {
-
+.map_icon {
     min-height: 28px;
     min-width: 28px;
 }

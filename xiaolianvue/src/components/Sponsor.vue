@@ -19,10 +19,10 @@ function click() {
         <LineMdCoffeeHalfEmptyTwotoneLoop class="sponsor_icon" />
         <div class="sponsor_container" @click="click">
             <div class="sponsor_title">
-                此工具真的有帮助？
+                此工具帮到你啦？
             </div>
             <div class="sponsor_text">
-                给作者赞赏一杯奶茶吧。或者给两杯奶茶，怎么样？点击跳转😙
+                那就给作者赞赏一杯奶茶吧。或者给两杯奶茶，怎么样？点击跳转😙
             </div>
         </div>
     </div>
