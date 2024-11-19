@@ -64,4 +64,16 @@ if (!System.getenv('GITHUB_ACTIONS')) {
 			}
 		}
 	}
+
+	task uploadJar(type: DefaultTask) {
+		dependsOn 'build'
+		doLast {
+			ssh.run {
+				session(remotes.webServer) {
+					put from: file("build/libs/XiaolianShowerSense-${version}.jar"), into: '/root/workspace/XiaolianShowerSense.jar'
+					execute 'killall -9 java || true'
+				}
+			}
+		}
+	}
 }
