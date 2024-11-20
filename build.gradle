@@ -15,7 +15,6 @@ java {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
-
 repositories {
 	maven {
 		url 'https://maven.aliyun.com/repository/public/'
@@ -59,12 +58,23 @@ if (!System.getenv('GITHUB_ACTIONS')) {
 				session(remotes.webServer) {
 					put from: file("build/libs/XiaolianShowerSense-${version}.jar"), into: '/root/workspace/XiaolianShowerSense.jar'
 					execute 'killall -9 java || true'
-					execute 'nohup java -jar /root/workspace/XiaolianShowerSense.jar > /dev/null 2>&1 &'
+					execute "export MYSQL_PASSWORD=${project.mysqlPassword} ; nohup java -jar /root/workspace/XiaolianShowerSense.jar -DMYSQL_PASSWORD=${project.mysqlPassword} > /root/workspace/XiaolianShowerSense.log 2>&1 &"
 				}
 			}
 		}
 	}
-
+	task debugJar(type: DefaultTask) {
+		dependsOn 'build'
+		doLast {
+			ssh.run {
+				session(remotes.webServer) {
+					put from: file("build/libs/XiaolianShowerSense-${version}.jar"), into: '/root/workspace/XiaolianShowerSense.jar'
+					execute 'killall -9 java || true'
+					execute "export MYSQL_PASSWORD=${project.mysqlPassword} ; nohup java -jar /root/workspace/XiaolianShowerSense.jar -DMYSQL_PASSWORD=${project.mysqlPassword}"
+				}
+			}
+		}
+	}
 	task uploadJar(type: DefaultTask) {
 		dependsOn 'build'
 		doLast {
