@@ -4,7 +4,7 @@
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Faquamarine5%2FXiaolianWebHelper.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Faquamarine5%2FXiaolianWebHelper?ref=badge_shield)
 [![2组-XiaolianShowerSense-DesignedApplicationAndDeployed.png](https://img.picui.cn/free/2024/11/10/6730af7803b44.png)](https://img.picui.cn/free/2024/11/10/6730af7803b44.png)
 
-> XiaolianShowerSense participated in **The project of designed an application** also successfully deployed it.
+> XiaolianShowerSense participated in **Designed an application** and successfully deployed it.
 
 - 适用于任何使用智慧笑联的学校，[http://wash.aquamarine5.fun/](http://wash.aquamarine5.fun/)目前仅适用于河北大学，不过可以更改参数以适配所有宿舍。
 
@@ -24,14 +24,15 @@
 
 ### Build and run
 
-#### 启动后端
+#### 启动后端 (for server)
 
 ```bash
 gradle build
-java -jar build/libs/XiaolianShowerSense-${version}.jar
+java -jar build/libs/XiaolianShowerSense-${version}.jar 
 ```
 
-- Springboot 将会监听`localhost:3017`, 请确保MySQL服务正在运行并有一个名为`xiaolian`的数据库，在`application.properties`更改数据库配置。
+- 环境变量`MYSQL_PASSWORD`是必须的。
+- Springboot 将会监听`localhost:3017`, 请确保MySQL服务正在运行并有一个名为`xiaolian`的数据库，在`application.properties`更改更多数据库配置。
 
 #### 启动前端
 

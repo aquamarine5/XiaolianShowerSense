@@ -145,7 +145,7 @@ export default {
             function getRoundedMinutes() {
                 const now = new Date();
                 const minutes = now.getMinutes();
-                const roundedMinutes = Math.floor(minutes / 10) * 10;
+                const roundedMinutes = Math.round(minutes / 10) * 10;
                 return roundedMinutes;
             }
 
@@ -220,6 +220,9 @@ export default {
                                 return formatDate(value);
                             }
                         },
+                    }, {
+                        "name": "当前时间",
+                        type: "line",
                         markLine: {
                             symbol: "none",
                             label: {
@@ -244,8 +247,8 @@ export default {
                         animation: true,
                         minSpan: 20,
                         maxSpan: 100,
-                        start: nowTimePos < response.data.data.startTime ? 0 : (nowTimePos - response.data.data.startTime - 80) / timePosDuration * 100,
-                        end: nowTimePos > response.data.data.endTime ? 0 : (nowTimePos - response.data.data.startTime + 80) / timePosDuration * 100,
+                        start: nowTimePos < response.data.data.startTime || nowTimePos > response.data.data.endTime ? 0 : (nowTimePos - response.data.data.startTime - 80) / timePosDuration * 100,
+                        end: nowTimePos < response.data.data.startTime || nowTimePos > response.data.data.endTime ? 100 : (nowTimePos - response.data.data.startTime + 80) / timePosDuration * 100,
                         show: true,
                         handleSize: 8
                     }],
