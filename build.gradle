@@ -44,7 +44,7 @@ tasks.named('test') {
 if (!System.getenv('GITHUB_ACTIONS')) {
 	remotes {
 		webServer {
-			host = '47.96.24.132'
+			host = '47.93.43.91'
 			port = 22
 			user = 'root'
 			password = project.sshPassword
@@ -57,20 +57,18 @@ if (!System.getenv('GITHUB_ACTIONS')) {
 			ssh.run {
 				session(remotes.webServer) {
 					put from: file("build/libs/XiaolianShowerSense-${version}.jar"), into: '/root/workspace/XiaolianShowerSense.jar'
-					execute 'killall -9 java || true'
-					execute "export MYSQL_PASSWORD=${project.mysqlPassword} ; nohup java -jar /root/workspace/XiaolianShowerSense.jar -DMYSQL_PASSWORD=${project.mysqlPassword} > /root/workspace/XiaolianShowerSense.log 2>&1 &"
+					execute 'pm2 restart XiaolianShowerSense'
 				}
 			}
 		}
 	}
-	task debugJar(type: DefaultTask) {
+	task startJar(type: DefaultTask) {
 		dependsOn 'build'
 		doLast {
 			ssh.run {
 				session(remotes.webServer) {
 					put from: file("build/libs/XiaolianShowerSense-${version}.jar"), into: '/root/workspace/XiaolianShowerSense.jar'
-					execute 'killall -9 java || true'
-					execute "export MYSQL_PASSWORD=${project.mysqlPassword} ; nohup java -jar /root/workspace/XiaolianShowerSense.jar -DMYSQL_PASSWORD=${project.mysqlPassword}"
+					execute "export MYSQL_PASSWORD=${project.mysqlPassword} ; pm2 start --name XiaolianShowerSense java -- -Xms128m -Xmx512m -jar /root/workspace/XiaolianShowerSense.jar -DMYSQL_PASSWORD=${project.mysqlPassword}} > /root/workspace/XiaolianShowerSense.log 2>&1 &"
 				}
 			}
 		}
