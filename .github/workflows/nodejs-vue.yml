@@ -26,15 +26,15 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 9
-          package_json_file: './vuefront/package.json'
+          package_json_file: './xiaolianvue/package.json'
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          cache-dependency-path: "./vuefront/pnpm-lock.yaml"
+          cache-dependency-path: "./xiaolianvue/pnpm-lock.yaml"
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-        working-directory: ./vuefront
+        working-directory: ./xiaolianvue
       - run: npm run build --if-present
-        working-directory: ./vuefront
+        working-directory: ./xiaolianvue

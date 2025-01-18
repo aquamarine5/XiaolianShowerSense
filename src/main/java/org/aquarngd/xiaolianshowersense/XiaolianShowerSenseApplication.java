@@ -83,7 +83,7 @@ public class XiaolianShowerSenseApplication {
                     residenceId INT NOT NULL
                 ) CHARACTER SET utf8mb4""");
         jdbcTemplate.execute("""
-                CREATE TABLE xiaolian.analyser (
+                CREATE TABLE xiaolian.analyses (
                     minv SMALLINT UNSIGNED NOT NULL DEFAULT 0,
                     avgv SMALLINT UNSIGNED NOT NULL DEFAULT 0,
                     maxv SMALLINT UNSIGNED NOT NULL DEFAULT 0,
