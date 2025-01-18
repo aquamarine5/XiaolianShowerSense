@@ -10,7 +10,7 @@
 
 ## Changelog
 
-- **v0.8:** 针对MySQL的性能更新。
+- **v0.8:** 针对MySQL的性能更新，关于从低版本的MySQL结构迁移到新版本的结构步骤，详见[SQL Structure Migration to v0.8](https://github.com/aquamarine5/XiaolianShowerSense/releases/tag/0.8)。
 - **v0.7:** 加入了分析图标功能。
 - **v0.6:** 加入了浴室地图功能。
 - **v0.5:** 更新了UI设计。
