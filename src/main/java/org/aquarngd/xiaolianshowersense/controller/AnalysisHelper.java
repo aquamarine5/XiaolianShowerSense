@@ -33,6 +33,7 @@ public class AnalysisHelper {
         } else
             return UnifiedResponse.Failed("No such residence");
         SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT minv,maxv,avgv,timePos FROM analyses WHERE residenceId = ?", residenceId);
+        Boolean configRs=jdbcTemplate.queryForObject("SELECT isAnalysisEnabled FROM config",Boolean.class);
         JSONObject jsonObject = new JSONObject();
         while (rs.next()) {
             int timePos = rs.getInt("timePos");
@@ -44,6 +45,7 @@ public class AnalysisHelper {
                 ));
             }
         }
+        jsonObject.put("isEnabled",configRs);
         jsonObject.put("startTime", startTime);
         jsonObject.put("endTime", endTime);
         return UnifiedResponse.Success(jsonObject);
@@ -53,6 +55,20 @@ public class AnalysisHelper {
     @GetMapping("/force_analyse")
     public JSONObject ForceAnalyse() {
         residenceController.shouldUpdateAnalysis = true;
+        return UnifiedResponse.SuccessSignal();
+    }
+
+    @CrossOrigin(origins = "*")
+    @GetMapping("/analyser_enabled")
+    public JSONObject AnalyserEnabled(){
+        jdbcTemplate.execute("UPDATE config SET isAnalysisEnabled=true LIMIT 1");
+        return UnifiedResponse.SuccessSignal();
+    }
+
+    @CrossOrigin(origins = "*")
+    @GetMapping("/analyser_disabled")
+    public JSONObject AnalyserDisabled(){
+        jdbcTemplate.execute("UPDATE config SET isAnalysisEnabled=false LIMIT 1");
         return UnifiedResponse.SuccessSignal();
     }
 }

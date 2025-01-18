@@ -64,10 +64,18 @@ public class XiaolianAnalysis {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    private boolean isEnabled() {
+        String sql = "SELECT isAnalysisEnabled FROM config LIMIT 1";
+        Boolean isEnabled = jdbcTemplate.queryForObject(sql, Boolean.class);
+        return isEnabled != null && isEnabled;
+    }
+
     public void UpdateAnalysis(JSONArray residences, int residenceId) {
-        logger.warn("residences: {}", residenceId);
+        if (!isEnabled()) {
+            logger.warn("Analysis is disabled.");
+            return;
+        }
         if (!residencesMap.containsKey(residenceId)) return;
-        logger.warn("residences: {}", residenceId);
         CheckDatabase(residenceId);
         Map<Integer, Integer> predictedRoadTime = new HashMap<>();
         for (int i = 0; i < residences.size(); i++) {
@@ -102,10 +110,7 @@ public class XiaolianAnalysis {
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("""
                 SELECT minv,avgv,maxv,count
                 FROM analyses WHERE residenceId=? and timePos=?""", residenceId, valueName);
-        logger.warn("allPredictedTime: {}", allPredictedTime);
-        logger.warn(String.valueOf(allPredictedTime.stream().min(Integer::compareTo).orElse(0)));
-        logger.warn(String.valueOf(allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size()));
-        logger.warn(String.valueOf(allPredictedTime.stream().max(Integer::compareTo).orElse(0)));
+
         if (sqlRowSet.next()) {
             int count = sqlRowSet.getInt("count");
             int currentMinData = sqlRowSet.getInt("minv");
