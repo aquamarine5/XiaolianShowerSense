@@ -2,8 +2,8 @@ package org.aquarngd.xiaolianshowersense.controller;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import org.aquarngd.xiaolianshowersense.UnifiedResponse;
 import org.aquarngd.xiaolianshowersense.ResidenceController;
+import org.aquarngd.xiaolianshowersense.UnifiedResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -23,8 +23,8 @@ public class ResidenceHelper {
 
     @CrossOrigin(origins = "*")
     @GetMapping("/list")
-    public String GetResidenceList() {
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT * FROM residenceIndex");
+    public JSONObject GetResidenceList() {
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT residenceId,floorId,buildingId,name FROM residenceIndex");
         JSONArray result = new JSONArray();
         while (sqlRowSet.next()) {
             result.add(new JSONObject(Map.ofEntries(
@@ -34,13 +34,13 @@ public class ResidenceHelper {
                     Map.entry("name", sqlRowSet.getString("name"))
             )));
         }
-        return UnifiedResponse.Success(result).toJSONString();
+        return UnifiedResponse.Success(result);
     }
 
     @CrossOrigin(origins = "*")
     @GetMapping("/force_update")
-    public String ForceUpdateAllResidence() {
+    public JSONObject ForceUpdateAllResidence() {
         residenceController.updateAllResidences();
-        return UnifiedResponse.SuccessSignal().toJSONString();
+        return UnifiedResponse.SuccessSignal();
     }
 }

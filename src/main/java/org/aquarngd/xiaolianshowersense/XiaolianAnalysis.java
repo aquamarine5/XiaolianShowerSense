@@ -46,7 +46,6 @@ public class XiaolianAnalysis {
                 mapDataList.addAll(mapData.getJSONArray(i).getJSONArray(1).toJavaList(Integer.class));
                 mapDataList.removeIf(value -> value == -1);
                 mapAllRoadData.add(mapDataList);
-
             }
             residencesMap.put(residenceId, mapAllRoadData);
             if (!residencesLastWashTime.containsKey(residenceId)) {
@@ -55,7 +54,7 @@ public class XiaolianAnalysis {
             if (!residencesLastUsedTime.containsKey(residenceId)) {
                 residencesLastUsedTime.put(residenceId, new HashMap<>());
             }
-            SqlRowSet residenceTimes = jdbcTemplate.queryForRowSet("SELECT lastUsedTime,lastWashTime,deviceId FROM `" + sqlRowSet.getInt("residenceId") + "`");
+            SqlRowSet residenceTimes = jdbcTemplate.queryForRowSet("SELECT lastUsedTime,lastWashTime,deviceId FROM showers WHERE residenceId=?", residenceId);
             while (residenceTimes.next()) {
                 residencesLastWashTime.get(residenceId).put(residenceTimes.getInt("deviceId"), residenceTimes.getTimestamp("lastWashTime").getTime());
                 residencesLastUsedTime.get(residenceId).put(residenceTimes.getInt("deviceId"), residenceTimes.getTimestamp("lastUsedTime").getTime());
@@ -65,10 +64,18 @@ public class XiaolianAnalysis {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    private boolean isEnabled() {
+        String sql = "SELECT isAnalysisEnabled FROM config LIMIT 1";
+        Boolean isEnabled = jdbcTemplate.queryForObject(sql, Boolean.class);
+        return isEnabled != null && isEnabled;
+    }
+
     public void UpdateAnalysis(JSONArray residences, int residenceId) {
-        logger.warn("residences: {}", residenceId);
+        if (!isEnabled()) {
+            logger.warn("Analysis is disabled.");
+            return;
+        }
         if (!residencesMap.containsKey(residenceId)) return;
-        logger.warn("residences: {}", residenceId);
         CheckDatabase(residenceId);
         Map<Integer, Integer> predictedRoadTime = new HashMap<>();
         for (int i = 0; i < residences.size(); i++) {
@@ -97,98 +104,44 @@ public class XiaolianAnalysis {
             allPredictedTime.add(roadPredictedTime);
         }
         LocalTime currentTime = LocalTime.now();
-        String valueName = String.format("8%s%s",
+        String valueName = String.format("3%s%s",
                 currentTime.getHour() < 10 ? "0" + currentTime.getHour() : currentTime.getHour(),
                 currentTime.getMinute() < 10 ? "00" : (currentTime.getMinute() / 10) * 10);
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT " +
-                "minv,avgv,maxv,count" +
-                " FROM `" + residenceId + "_analysis` WHERE timePos=" + valueName);
-        logger.warn("allPredictedTime: {}", allPredictedTime);
-        logger.warn(String.valueOf(allPredictedTime.stream().min(Integer::compareTo).orElse(0)));
-        logger.warn(String.valueOf(allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size()));
-        logger.warn(String.valueOf(allPredictedTime.stream().max(Integer::compareTo).orElse(0)));
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("""
+                SELECT minv,avgv,maxv,count
+                FROM analyses WHERE residenceId=? and timePos=?""", residenceId, valueName);
+
         if (sqlRowSet.next()) {
             int count = sqlRowSet.getInt("count");
             int currentMinData = sqlRowSet.getInt("minv");
-            if (currentMinData == 0)
-                jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET minv = " +
-                        allPredictedTime.stream().min(Integer::compareTo).orElse(0) +
-                        " WHERE timePos=" + valueName);
             int currentAvgData = sqlRowSet.getInt("avgv");
-            if (currentAvgData == 0)
-                jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET avgv = " +
-                        allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size() +
-                        " WHERE timePos=" + valueName);
             int currentMaxData = sqlRowSet.getInt("maxv");
-            if (currentMaxData == 0)
-                jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET maxv = " +
-                        allPredictedTime.stream().max(Integer::compareTo).orElse(0) +
-                        " WHERE timePos=" + valueName);
 
-            jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET minv = " +
-                    (currentMinData*count + allPredictedTime.stream().min(Integer::compareTo).orElse(currentMinData)) / (count+1) +
-                    " WHERE timePos=" + valueName);
-            jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET avgv = " +
-                    (currentAvgData*count + allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size()) / (count+1) +
-                    " WHERE timePos=" + valueName);
-            jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET maxv = " +
-                    (currentMaxData*count + allPredictedTime.stream().max(Integer::compareTo).orElse(currentMaxData)) / (count+1) +
-                    " WHERE timePos=" + valueName);
-            jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET count = " + (count + 1) + " WHERE timePos=" + valueName);
-        } else {
-            jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET minv = " +
-                    allPredictedTime.stream().min(Integer::compareTo).orElse(0) +
-                    " WHERE timePos=" + valueName);
-            jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET avgv = " +
-                    allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size() +
-                    " WHERE timePos=" + valueName);
-            jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET maxv = " +
-                    allPredictedTime.stream().max(Integer::compareTo).orElse(0) +
-                    " WHERE timePos=" + valueName);
-            jdbcTemplate.execute("UPDATE `" + residenceId + "_analysis` SET count = 1 WHERE timePos=" + valueName);
+            jdbcTemplate.update("UPDATE analyses SET minv = ?, avgv = ?, maxv = ?, count = count+1 WHERE residenceId=? and timePos = ?",
+                    residenceId,
+                    (currentMinData * count + allPredictedTime.stream().min(Integer::compareTo).orElse(currentMinData)) / (count + 1),
+                    (currentAvgData * count + allPredictedTime.stream().mapToInt(Integer::intValue).sum() / allPredictedTime.size()) / (count + 1),
+                    (currentMaxData * count + allPredictedTime.stream().max(Integer::compareTo).orElse(currentMaxData)) / (count + 1),
+                    valueName);
         }
+    }
+
+    private boolean isResidenceIdInAnalyses(int residenceId) {
+        String sql = "SELECT COUNT(*) FROM analyses WHERE residenceId = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, residenceId);
+        return count != null && count > 0;
     }
 
     private void CheckDatabase(int residenceId) {
-        if (!isDatabaseExisted(String.format("%d_analysis", residenceId))) {
-            jdbcTemplate.execute("CREATE TABLE `" + residenceId + "_analysis` (" + """
-                    minv INT,
-                    avgv INT,
-                    maxv INT,
-                    timePos INT PRIMARY KEY,
-                    count INT DEFAULT 0
-                    ) CHARACTER SET utf8mb4;
-                    """);
+        if (!isResidenceIdInAnalyses(residenceId)) {
             for (int i = 0; i < 24; i++) {
                 for (int j = 0; j < 6; j++) {
-                    String valueName = String.format("8%s%s",
+                    String valueName = String.format("3%s%s",
                             i < 10 ? "0" + i : i,
                             j == 0 ? "00" : j * 10);
-                    jdbcTemplate.execute("INSERT INTO `" + residenceId + "_analysis` (minv,avgv,maxv,timePos) VALUES (0,0,0," + valueName + ")");
+                    jdbcTemplate.update("INSERT INTO analyses (minv,avgv,maxv,timePos,residenceId) VALUES (0,0,0,?,?)", valueName, residenceId);
                 }
             }
         }
-    }
-
-    private boolean isDatabaseExisted(String id) {
-        Connection connection = null;
-        ResultSet rs = null;
-        try {
-            connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
-            DatabaseMetaData data = connection.getMetaData();
-            String[] types = {"TABLE"};
-            rs = data.getTables(null, null, id, types);
-            if (rs.next()) return true;
-        } catch (SQLException e) {
-            logger.error("error sql: {}", e.getMessage());
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                logger.error("error when closed sql: {}", e.getMessage());
-            }
-        }
-        return false;
     }
 }

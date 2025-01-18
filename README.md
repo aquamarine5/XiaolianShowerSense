@@ -24,6 +24,52 @@
 
 ### Build and run
 
+### MySQL
+
+```mysql
+CREATE DATABASE xiaolian;
+
+CREATE TABLE xiaolian.residenceIndex (
+    residenceId INT PRIMARY KEY,
+    floorId INT NOT NULL,
+    buildingId INT NOT NULL,
+    name TEXT NOT NULL,
+    mapdata JSON,
+    contributors TEXT,
+    analyseStartTime MEDIUMINT UNSIGNED,
+    analyseEndTime MEDIUMINT UNSIGNED
+) CHARACTER SET utf8mb4;
+
+CREATE TABLE xiaolian.showers (
+  deviceId INT PRIMARY KEY,
+  location VARCHAR(50) NOT NULL,
+  displayNo TINYINT(3) NOT NULL,
+  status TINYINT(2) NOT NULL,
+  lastUsedTime TIMESTAMP NOT NULL,
+  lastWashTime TIMESTAMP NOT NULL,
+  residenceId INT NOT NULL
+) CHARACTER SET utf8mb4;
+
+CREATE TABLE xiaolian.analyser (
+   minv SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+   avgv SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+   maxv SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+   timePos SMALLINT UNSIGNED NOT NULL,
+   count SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+   residenceId INT UNSIGNED NOT NULL,
+   PRIMARY KEY (residenceId, timePos)
+) CHARACTER SET utf8mb4;
+
+CREATE TABLE xiaolian.config (
+    accessToken TEXT NOT NULL,
+    refreshToken TEXT NOT NULL,
+    avgWashCount MEDIUMINT UNSIGNED DEFAULT 0,
+    avgWashTime MEDIUMINT UNSIGNED DEFAULT 0,
+    requestTimes MEDIUMINT UNSIGNED DEFAULT 0,
+    isAnalysisEnabled BOOLEAN DEFAULT TRUE NOT NULL
+) CHARACTER SET utf8mb4;
+```
+
 #### 启动后端 (for server)
 
 ```bash
