@@ -5,17 +5,12 @@ import com.alibaba.fastjson2.JSONObject;
 import org.aquarngd.xiaolianshowersense.data.WasherStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
-import java.sql.*;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @ComponentScan("org.aquarngd.xiaolianshowersense")
 @Component
@@ -56,15 +51,15 @@ public class ResidenceController {
     }
 
     public void setupAllSupportedResidenceIndex() {
-        for(int buildingId:supportedResidenceBuildingsId){
+        for (int buildingId : supportedResidenceBuildingsId) {
             setupResidenceIndex(buildingId);
         }
     }
 
-    private void checkResidenceIndex(int residenceId,int buildingId){
+    private void checkResidenceIndex(int residenceId, int buildingId) {
         String sql = "SELECT residenceId FROM residenceIndex WHERE residenceId = ? LIMIT 1";
-        SqlRowSet sqlRowSet=jdbcTemplate.queryForRowSet(sql,residenceId);
-        if(!sqlRowSet.next()){
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, residenceId);
+        if (!sqlRowSet.next()) {
             setupResidenceIndex(buildingId);
         }
     }
@@ -72,12 +67,12 @@ public class ResidenceController {
     private void updateShower(JSONObject deviceObject, int residenceId) {
         WasherStatus deviceStatus = WasherStatus.valueOf(deviceObject.getInteger("deviceStatus"));
         int deviceId = deviceObject.getInteger("deviceId");
-        SqlRowSet rs = jdbcTemplate.queryForRowSet(String.format("SELECT * FROM `%d` WHERE deviceId = %d", residenceId, deviceId));
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT status FROM showers WHERE residenceId=? and deviceId =?", residenceId, deviceId);
         if (rs.next()) {
             if (WasherStatus.valueOf(rs.getInt("status")) == WasherStatus.NOT_USING &&
                     deviceStatus == WasherStatus.USING) {
                 xiaolianAnalysis.residencesLastUsedTime.get(residenceId).put(deviceId, System.currentTimeMillis());
-                jdbcTemplate.execute(String.format("UPDATE `%d` SET lastUsedTime = NOW() WHERE deviceId = %d", residenceId, deviceId));
+                jdbcTemplate.update("UPDATE showers SET lastUsedTime = NOW() WHERE residenceId=? and deviceId =?", residenceId, deviceId);
                 logger.info("sql: run sql update lastUsedTime at residenceId:{}, deviceId:{}", residenceId, deviceId);
             }
             if (WasherStatus.valueOf(rs.getInt("status")) == WasherStatus.USING &&
@@ -89,28 +84,27 @@ public class ResidenceController {
                     int count = rrs.getInt("avgWashCount");
                     long newAvgTime = (rrs.getLong("avgWashTime") * count + time) / (count + 1);
                     xiaolianAnalysis.averageWashTime = newAvgTime;
-                    jdbcTemplate.update("UPDATE config SET avgWashTime = ? LIMIT 1", newAvgTime);
-                    jdbcTemplate.execute("UPDATE config SET avgWashCount = avgWashCount + 1 LIMIT 1");
-                    jdbcTemplate.execute(String.format("UPDATE `%d` SET lastWashTime = NOW() WHERE deviceId = %d", residenceId, deviceId));
+                    jdbcTemplate.update("UPDATE config SET avgWashTime = ?, avgWashCount = avgWashCount + 1 LIMIT 1", newAvgTime);
+                    jdbcTemplate.update("UPDATE showers SET lastWashTime = NOW() WHERE residenceId=? and deviceId = ?", residenceId, deviceId);
                     xiaolianAnalysis.residencesLastWashTime.get(residenceId).put(deviceId, System.currentTimeMillis());
                     logger.info("sql: update avgWashTime");
                 } else {
                     logger.warn("sql: pass time too large: {}", time);
                 }
             }
-            jdbcTemplate.execute(String.format("UPDATE `%d` SET status = %d WHERE deviceId = %d", residenceId, deviceObject.getInteger("deviceStatus"), deviceId));
+            jdbcTemplate.update("UPDATE showers SET status = ? WHERE residenceId=? and deviceId = ?", deviceObject.getInteger("deviceStatus"), residenceId, deviceId);
         } else {
-            jdbcTemplate.execute(String.format("INSERT INTO `%d` (deviceId, location, status, lastUsedTime,lastWashTime, displayNo) VALUES (%d, '%s', %d, NOW(),NOW(), %d)",
+            jdbcTemplate.update("INSERT INTO showers (residenceId,deviceId, location, status, lastUsedTime,lastWashTime, displayNo) VALUES (?,?, ?, ?, NOW(),NOW(), ?)",
                     residenceId,
                     deviceId,
                     deviceObject.getString("location"),
                     deviceStatus.value(),
-                    deviceObject.getInteger("dispNo")));
+                    deviceObject.getInteger("dispNo"));
             logger.info("sql: run sql insert into.");
         }
     }
 
-    private void updateResidence(JSONObject postBody, int residenceId,int buildingId) {
+    private void updateResidence(JSONObject postBody, int residenceId, int buildingId) {
         JSONArray deviceList = webPortal.sendPostRequest("https://netapi.xiaolianhb.com/m/net/stu/residence/listDevice",
                         postBody,
                         "https://netapi.xiaolianhb.com/2020042916153901/4.9.2.0/m/net/stu/residence/listDevice")
@@ -120,7 +114,7 @@ public class ResidenceController {
         if (!xiaolianAnalysis.residencesLastUsedTime.containsKey(residenceId))
             xiaolianAnalysis.residencesLastUsedTime.put(residenceId, new HashMap<>());
         logger.info("post http.");
-        checkResidenceIndex(residenceId,buildingId);
+        checkResidenceIndex(residenceId, buildingId);
         for (int i = 0; i < deviceList.size(); i++) {
             updateShower(deviceList.getJSONObject(i), residenceId);
         }
@@ -135,7 +129,7 @@ public class ResidenceController {
         while (sqlRowSet.next()) {
             updateResidence(
                     XiaolianWebPortal.buildUpdateWasherRequest(
-                        sqlRowSet.getInt("buildingId"), sqlRowSet.getInt("residenceId"), sqlRowSet.getInt("floorId")),
+                            sqlRowSet.getInt("buildingId"), sqlRowSet.getInt("residenceId"), sqlRowSet.getInt("floorId")),
                     sqlRowSet.getInt("residenceId"),
                     sqlRowSet.getInt("buildingId"));
         }
