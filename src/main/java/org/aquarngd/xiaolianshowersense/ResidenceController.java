@@ -69,13 +69,13 @@ public class ResidenceController {
         int deviceId = deviceObject.getInteger("deviceId");
         SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT status FROM showers WHERE residenceId=? and deviceId =?", residenceId, deviceId);
         if (rs.next()) {
-            if (WasherStatus.valueOf(rs.getInt("status")) == WasherStatus.NOT_USING &&
+            if (WasherStatus.valueOf(rs.getByte("status")) == WasherStatus.NOT_USING &&
                     deviceStatus == WasherStatus.USING) {
                 xiaolianAnalysis.residencesLastUsedTime.get(residenceId).put(deviceId, System.currentTimeMillis());
                 jdbcTemplate.update("UPDATE showers SET lastUsedTime = NOW() WHERE residenceId=? and deviceId =?", residenceId, deviceId);
                 logger.info("sql: run sql update lastUsedTime at residenceId:{}, deviceId:{}", residenceId, deviceId);
             }
-            if (WasherStatus.valueOf(rs.getInt("status")) == WasherStatus.USING &&
+            if (WasherStatus.valueOf(rs.getByte("status")) == WasherStatus.USING &&
                     deviceStatus == WasherStatus.NOT_USING) {
                 long time = System.currentTimeMillis() - rs.getTimestamp("lastUsedTime").getTime();
                 if (time <= 3600000L) {

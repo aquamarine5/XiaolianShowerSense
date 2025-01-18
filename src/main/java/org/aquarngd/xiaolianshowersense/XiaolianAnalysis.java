@@ -139,26 +139,4 @@ public class XiaolianAnalysis {
             }
         }
     }
-
-    private boolean isDatabaseExisted(String id) {
-        Connection connection = null;
-        ResultSet rs = null;
-        try {
-            connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
-            DatabaseMetaData data = connection.getMetaData();
-            String[] types = {"TABLE"};
-            rs = data.getTables(null, null, id, types);
-            if (rs.next()) return true;
-        } catch (SQLException e) {
-            logger.error("error sql: {}", e.getMessage());
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                logger.error("error when closed sql: {}", e.getMessage());
-            }
-        }
-        return false;
-    }
 }
