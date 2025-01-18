@@ -77,7 +77,7 @@ public class XiaolianShowerSenseApplication {
                     deviceId INT PRIMARY KEY,
                     location VARCHAR(50) NOT NULL,
                     displayNo TINYINT(3) NOT NULL,
-                    status TINYINT(1) NOT NULL,
+                    status TINYINT(2) NOT NULL,
                     lastUsedTime TIMESTAMP NOT NULL,
                     lastWashTime TIMESTAMP NOT NULL,
                     residenceId INT NOT NULL
