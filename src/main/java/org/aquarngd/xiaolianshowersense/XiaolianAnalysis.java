@@ -97,7 +97,7 @@ public class XiaolianAnalysis {
             allPredictedTime.add(roadPredictedTime);
         }
         LocalTime currentTime = LocalTime.now();
-        String valueName = String.format("8%s%s",
+        String valueName = String.format("3%s%s",
                 currentTime.getHour() < 10 ? "0" + currentTime.getHour() : currentTime.getHour(),
                 currentTime.getMinute() < 10 ? "00" : (currentTime.getMinute() / 10) * 10);
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT " +

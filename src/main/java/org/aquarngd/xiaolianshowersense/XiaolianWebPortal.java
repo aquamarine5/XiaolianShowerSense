@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Objects;
 
 @Component
@@ -37,15 +38,11 @@ public class XiaolianWebPortal {
         logger = LoggerFactory.getLogger(XiaolianWebPortal.class);
     }
 
-    JdbcTemplate getJdbcTemplate() {
-        return jdbcTemplate;
-    }
-
     public HttpHeaders getHttpHeaders(@Nullable String referer) {
         if (!isDatabaseExisted()) {
             createDatabase();
             logger.debug("sql: create data table");
-            getJdbcTemplate().execute(String.format("INSERT INTO `data` (accessToken,refreshToken) VALUES ('%s', '%s')",
+            jdbcTemplate.execute(String.format("INSERT INTO `data` (accessToken,refreshToken) VALUES ('%s', '%s')",
                     "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI1NzQ1ODcwIiwib3MiOiIwIiwiaXNzIjoiaHR0cHM6Ly94aWFvbGlhbi5pbyIsImlhdCI6MTcyNjkwODcyOSwiZXhwIjoxNzI2OTI2NzI5fQ.WK85D2fwxnd6SsWs8KKBKhm75nBki8C7q_Cs331iazIFo6Ji5JxW7lC2wVkBHcd4XoAnFMI9tUWpOI5rXBMVpg",
                     "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI1NzQ1ODcwIiwib3MiOiIwIiwiaXNzIjoiaHR0cHM6Ly94aWFvbGlhbi5pbyIsImlhdCI6MTcyNjkwODcyOSwiZXhwIjoxNzI4MjA0NzI5fQ.Bv2wkS8m7O2gHOfDjxFPRHpBgis4KbXO1R-_Kp0ly3ohPjL9hDQWev66_XjGU0DrnS59B5ZWG0MSh7aPi86SBg"));
 
@@ -58,17 +55,6 @@ public class XiaolianWebPortal {
         if (referer != null)
             httpHeaders.set(HttpHeaders.REFERER, referer);
         return httpHeaders;
-    }
-
-    private void createDatabase() {
-        getJdbcTemplate().execute("""
-                CREATE TABLE xiaolian.data (
-                accessToken TEXT NOT NULL,
-                refreshToken TEXT NOT NULL,
-                avgWashCount INT DEFAULT 0,
-                avgWashTime BIGINT DEFAULT 0,
-                requestTimes INT DEFAULT 0
-                ) CHARACTER SET utf8mb4""");
     }
 
     private static JSONObject getLoginJsonObject() {
@@ -87,10 +73,35 @@ public class XiaolianWebPortal {
         loginData.put("lat", "");
         return loginData;
     }
+    public static JSONObject buildIndexResidenceRequest(int buildingId) {
+        return new JSONObject(Map.ofEntries(
+                Map.entry("_mp", "1_1_2"),
+                Map.entry("buildingId", buildingId),
+                Map.entry("campusId", 347),
+                Map.entry("miniSource", 3),
+                Map.entry("schoolId", 219),
+                Map.entry("system", 2),
+                Map.entry("netType", 1)
+        ));
+    }
 
+    public static JSONObject buildUpdateWasherRequest(int buildingId, int residenceId, int floorId) {
+        return new JSONObject(Map.ofEntries(
+                Map.entry("residenceId", residenceId),
+                Map.entry("floorId", floorId),
+                Map.entry("deviceType", 1),
+                Map.entry("locationType", 2),
+                Map.entry("buildingId", buildingId),
+                Map.entry("page", 1),
+                Map.entry("size", 1000),
+                Map.entry("_mp", "1_1_2"),
+                Map.entry("miniSource", 3),
+                Map.entry("system", 2)
+        ));
+    }
     private void getTokens() {
 
-        SqlRowSet rs = getJdbcTemplate().queryForRowSet("SELECT * FROM `data`");
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT * FROM config");
         if (rs.next()) {
             accessToken = rs.getString("accessToken");
             refreshToken = rs.getString("refreshToken");
@@ -108,8 +119,8 @@ public class XiaolianWebPortal {
             logger.info("sql: login response: {}", response.toJSONString());
             String newAccessToken = response.getJSONObject("data").getString("accessToken");
             String newRefreshToken = response.getJSONObject("data").getString("refreshToken");
-            getJdbcTemplate().execute("UPDATE `data` SET accessToken = '" + newAccessToken + "'");
-            getJdbcTemplate().execute("UPDATE `data` SET refreshToken = '" + newRefreshToken + "'");
+            jdbcTemplate.update("UPDATE config SET accessToken = ? LIMIT 1",newAccessToken);
+            jdbcTemplate.update("UPDATE config SET refreshToken = ? LIMIT 1",newRefreshToken);
             accessToken = newAccessToken;
             refreshToken = newRefreshToken;
         }
@@ -138,7 +149,7 @@ public class XiaolianWebPortal {
         Connection connection = null;
         ResultSet rs = null;
         try {
-            connection = Objects.requireNonNull(getJdbcTemplate().getDataSource()).getConnection();
+            connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
             DatabaseMetaData data = connection.getMetaData();
             String[] types = {"TABLE"};
             rs = data.getTables(null, null, "data", types);

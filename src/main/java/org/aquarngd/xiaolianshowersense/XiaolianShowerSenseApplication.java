@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -22,12 +23,16 @@ import org.springframework.stereotype.Component;
 public class XiaolianShowerSenseApplication {
     Logger logger;
 
-    @Autowired
-    public ResidenceController residenceController;
+    public final ResidenceController residenceController;
+    private final JdbcTemplate jdbcTemplate;
 
-    public XiaolianShowerSenseApplication() {
+    public XiaolianShowerSenseApplication(ResidenceController residenceController, JdbcTemplate jdbcTemplate) {
         logger = LoggerFactory.getLogger(XiaolianShowerSenseApplication.class);
         logger.info("XiaolianWebHelper launched.");
+        this.residenceController = residenceController;
+        this.jdbcTemplate = jdbcTemplate;
+        if(isDatabaseEmpty())
+            setupDatabase();
     }
 
     public static void main(String[] args) {
@@ -44,5 +49,55 @@ public class XiaolianShowerSenseApplication {
     public void refreshAnalysis() {
         logger.info("Analysis refreshed.");
         residenceController.shouldUpdateAnalysis = true;
+    }
+
+    public boolean isDatabaseEmpty(){
+        String sql = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'xiaolian'";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
+        return count == null || count == 0;
+    }
+
+    public void setupDatabase(){
+        jdbcTemplate.execute("""
+            CREATE TABLE xiaolian.residenceIndex (
+                residenceId INT PRIMARY KEY,
+                floorId INT NOT NULL,
+                buildingId INT NOT NULL,
+                name TEXT NOT NULL,
+                mapdata JSON,
+                contributors TEXT,
+                analyseStartTime MEDIUMINT UNSIGNED,
+                analyseEndTime MEDIUMINT UNSIGNED
+            ) CHARACTER SET utf8mb4""");
+        jdbcTemplate.execute("""
+            CREATE TABLE xiaolian.showers (
+                deviceId INT PRIMARY KEY,
+                location VARCHAR(50) NOT NULL,
+                displayNo TINYINT(3) NOT NULL,
+                status TINYINT(1) NOT NULL,
+                lastUsedTime TIMESTAMP NOT NULL,
+                lastWashTime TIMESTAMP NOT NULL,
+                residenceId INT NOT NULL
+            ) CHARACTER SET utf8mb4""");
+        jdbcTemplate.execute("""
+            CREATE TABLE xiaolian.analyser (
+                minv SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+                avgv SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+                maxv SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+                timePos SMALLINT UNSIGNED NOT NULL,
+                count SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+                residenceId INT UNSIGNED NOT NULL,
+                PRIMARY KEY (residenceId, timePos)
+            ) CHARACTER SET utf8mb4""");
+        jdbcTemplate.execute("""
+            CREATE TABLE xiaolian.config (
+                accessToken TEXT NOT NULL,
+                refreshToken TEXT NOT NULL,
+                avgWashCount MEDIUMINT UNSIGNED DEFAULT 0,
+                avgWashTime MEDIUMINT UNSIGNED DEFAULT 0,
+                requestTimes MEDIUMINT UNSIGNED DEFAULT 0,
+                isAnalysisEnabled BOOLEAN DEFAULT TRUE NOT NULL
+            ) CHARACTER SET utf8mb4""");
+        residenceController.setupAllSupportedResidenceIndex();
     }
 }

@@ -32,46 +32,45 @@ public class AnalysisHelper {
     @CrossOrigin(origins = "*")
     @GetMapping("/analysis")
     public JSONObject GetAnalysis(@RequestParam int residenceId) {
-        if(!isDatabaseExisted(residenceId+"_analysis"))
+        if (!isDatabaseExisted(residenceId + "_analysis"))
             return UnifiedResponse.Success("x");
-        SqlRowSet rs=jdbcTemplate.queryForRowSet("SELECT * FROM `"+residenceId+"_analysis`");
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT * FROM `" + residenceId + "_analysis`");
         JSONObject jsonObject = new JSONObject();
         SqlRowSet analysisTimeResult = jdbcTemplate.queryForRowSet("SELECT mapdata,analyseStartTime,analyseEndTime FROM residenceIndex WHERE residenceId = ?", residenceId);
-        int startTime=-1;
-        int endTime=-1;
-        if(analysisTimeResult.next()){
-            if(analysisTimeResult.getString("mapdata")==null)
+        int startTime = -1;
+        int endTime = -1;
+        if (analysisTimeResult.next()) {
+            if (analysisTimeResult.getString("mapdata") == null)
                 return UnifiedResponse.Failed("No such residence");
-            startTime=analysisTimeResult.getInt("analyseStartTime");
-            endTime=analysisTimeResult.getInt("analyseEndTime");
-        }
-        else return UnifiedResponse.Failed("No such residence");
+            startTime = analysisTimeResult.getInt("analyseStartTime");
+            endTime = analysisTimeResult.getInt("analyseEndTime");
+        } else return UnifiedResponse.Failed("No such residence");
         while (rs.next()) {
-            int timePos=rs.getInt("timePos");
-            if(startTime<=timePos&&timePos<=endTime){
-                jsonObject.put(String.valueOf(timePos),JSONObject.of(
-                        "maxv",rs.getInt("maxv"),
-                        "minv",rs.getInt("minv"),
-                        "avgv",rs.getInt("avgv")
+            int timePos = rs.getInt("timePos");
+            if (startTime <= timePos && timePos <= endTime) {
+                jsonObject.put(String.valueOf(timePos), JSONObject.of(
+                        "maxv", rs.getInt("maxv"),
+                        "minv", rs.getInt("minv"),
+                        "avgv", rs.getInt("avgv")
                 ));
             }
         }
-        jsonObject.put("startTime",startTime);
-        jsonObject.put("endTime",endTime);
+        jsonObject.put("startTime", startTime);
+        jsonObject.put("endTime", endTime);
         return UnifiedResponse.Success(jsonObject);
     }
 
     @CrossOrigin(origins = "*")
     @GetMapping("/force_analyse")
     public JSONObject ForceAnalyse() {
-        residenceController.shouldUpdateAnalysis=true;
+        residenceController.shouldUpdateAnalysis = true;
         return UnifiedResponse.SuccessSignal();
     }
 
     private boolean isDatabaseExisted(String id) {
         Connection connection = null;
         ResultSet rs = null;
-        var logger= LoggerFactory.getLogger(AnalysisHelper.class);
+        var logger = LoggerFactory.getLogger(AnalysisHelper.class);
         try {
             connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
             DatabaseMetaData data = connection.getMetaData();
