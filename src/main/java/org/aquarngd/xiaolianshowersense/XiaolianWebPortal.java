@@ -52,7 +52,7 @@ public class XiaolianWebPortal {
 
     private static JSONObject getLoginJsonObject() {
         JSONObject loginData = new JSONObject();
-        loginData.put("appList", "[]");
+        loginData.put("appList", new JSONArray());
         loginData.put("mobile", "19030827318");
         loginData.put("password", "070304syz");
         loginData.put("appVersion", "1.4.8");

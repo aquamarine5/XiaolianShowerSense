@@ -46,6 +46,7 @@ import LineMdEmojiSmileWinkTwotone from '~icons/line-md/emoji-smile-wink-twotone
 }
 
 .introduction_text {
+    font-family: "Gilroy", sans-serif;
     color: white;
     font-size: smaller;
     font-weight: 500;

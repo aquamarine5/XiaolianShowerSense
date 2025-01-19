@@ -3,6 +3,7 @@ import wnetwork from '@/wnetwork';
 import * as echarts from 'echarts';
 import LineMdListIndentedReversed from '~icons/line-md/list-indented-reversed?width=28px&height=28px';
 import LineMdBellAlertTwotoneLoop from '~icons/line-md/bell-alert-twotone-loop?width=28px&height=28px';
+import LineMdChatAlertTwotone from '~icons/line-md/chat-alert-twotone?width=8px&height=8px';
 import { nextTick, ref } from 'vue';
 
 </script>
@@ -20,6 +21,10 @@ import { nextTick, ref } from 'vue';
             <div class="analysis_tips">
                 可以拖动缩放查看更多数据哦🧐
             </div>
+            <div v-if="!isAnalysisEnabled" class="analysis_disabled">
+                <LineMdChatAlertTwotone class="analysis_icon" />
+                当前分析功能已停用，可能由于当前为假期时间。
+            </div>
         </div>
         <div class="analysis_error" v-else>
             <LineMdBellAlertTwotoneLoop class="analysis_icon" />
@@ -30,6 +35,17 @@ import { nextTick, ref } from 'vue';
     </div>
 </template>
 <style scoped>
+.analysis_disabled {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    font-size: smaller;
+    background-color: rgb(255, 230, 0);
+    padding: 5px;
+    border-radius: 8px;
+}
+
 .analysis_icon {
     min-height: 28px;
     min-width: 28px;
@@ -46,6 +62,11 @@ import { nextTick, ref } from 'vue';
     align-items: center;
     width: 100%;
     gap: 10px;
+
+    background-color: rgb(255, 230, 0);
+    padding: 5px 8px;
+    margin: 1px 5px;
+    border-radius: 8px;
 }
 
 .analysis_view {
@@ -95,6 +116,7 @@ import { nextTick, ref } from 'vue';
 }
 </style>
 <script>
+const isAnalysisEnabled = ref(true)
 const isDataReady = ref(false);
 const isShowAnalysis = ref(true);
 function formatDate(t) {
@@ -130,6 +152,7 @@ export default {
                 isShowAnalysis.value = false;
                 return;
             }
+            isAnalysisEnabled.value = response.data.data.isEnabled
             let xAxisData = [];
             let minData = [];
             let avgData = [];

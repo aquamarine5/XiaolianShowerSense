@@ -1,6 +1,7 @@
 <script setup lang="js">
 import LineMdTiktok from '~icons/line-md/tiktok?width=32px&height=32px';
 import LineMdGithubTwotone from '~icons/line-md/github-twotone?width=32px&height=32px';
+import pkginfo from "../../package.json"
 
 function jumpToGithub() {
     window.open("https://github.com/aquamarine5/XiaolianWebHelper", "_blanks")
@@ -17,7 +18,7 @@ function jumpToDouyin() {
             <div class="topbar_title">
                 XiaolianShowerSense
                 <div class="topbar_version">
-                    v0.7
+                    v{{ pkginfo.version }}
                 </div>
             </div>
             <LineMdTiktok class="topbar_douyin" @click="jumpToDouyin" />
@@ -29,14 +30,17 @@ function jumpToDouyin() {
 
 <style scoped>
 @import "../font.css";
+
 .topbar_bg {
     background-color: #03a9f4;
     border-radius: 0px 0px 10px 10px;
 }
-.topbar_version{
+
+.topbar_version {
     font-size: small;
     padding-left: 2px;
 }
+
 .topbar_container {
     padding-block: 8px;
     align-items: center;
