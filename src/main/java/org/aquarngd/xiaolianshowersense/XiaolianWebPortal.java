@@ -40,7 +40,7 @@ public class XiaolianWebPortal {
     }
 
     public HttpHeaders getHttpHeaders(@Nullable String referer) {
-        if (Objects.equals(accessToken, "")) getTokens();
+        if (Objects.equals(accessToken, "") || Objects.equals(refreshToken,"")) getTokens();
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         httpHeaders.set("accessToken", accessToken);
@@ -95,7 +95,7 @@ public class XiaolianWebPortal {
     }
 
     private void getTokens() {
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT accessToken,refreshToken FROM config");
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT accessToken,refreshToken FROM config LIMIT 1");
         if (rs.next()) {
             accessToken = rs.getString("accessToken");
             refreshToken = rs.getString("refreshToken");
@@ -106,15 +106,16 @@ public class XiaolianWebPortal {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<JSONObject> httpEntity = new HttpEntity<>(getLoginJsonObject(), headers);
-        ResponseEntity<JSONObject> responseEntity = restTemplate.postForEntity("https://mapi.xiaolianhb.com/mp/login", httpEntity, JSONObject.class);
+        ResponseEntity<JSONObject> responseEntity = restTemplate.postForEntity(
+                "https://mapi.xiaolianhb.com/mp/login", httpEntity, JSONObject.class);
         logger.info("try re-login.");
         JSONObject response = responseEntity.getBody();
         if (response != null) {
             logger.info("sql: login response: {}", response.toJSONString());
             String newAccessToken = response.getJSONObject("data").getString("accessToken");
             String newRefreshToken = response.getJSONObject("data").getString("refreshToken");
-            jdbcTemplate.update("UPDATE config SET accessToken = ? LIMIT 1", newAccessToken);
-            jdbcTemplate.update("UPDATE config SET refreshToken = ? LIMIT 1", newRefreshToken);
+            jdbcTemplate.update("UPDATE config SET accessToken = ?, refreshToken = ? LIMIT 1",
+                    newAccessToken, newRefreshToken);
             accessToken = newAccessToken;
             refreshToken = newRefreshToken;
         }

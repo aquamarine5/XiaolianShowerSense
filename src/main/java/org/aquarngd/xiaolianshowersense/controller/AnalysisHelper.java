@@ -33,7 +33,7 @@ public class AnalysisHelper {
         } else
             return UnifiedResponse.Failed("No such residence");
         SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT minv,maxv,avgv,timePos FROM analyses WHERE residenceId = ?", residenceId);
-        Boolean configRs=jdbcTemplate.queryForObject("SELECT isAnalysisEnabled FROM config",Boolean.class);
+        Boolean configRs=jdbcTemplate.queryForObject("SELECT isAnalysisEnabled FROM config LIMIT 1",Boolean.class);
         JSONObject jsonObject = new JSONObject();
         while (rs.next()) {
             int timePos = rs.getInt("timePos");

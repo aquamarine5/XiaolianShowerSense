@@ -15,11 +15,16 @@ import java.util.Map;
 
 @RestController
 public class ResidenceHelper {
-    @Autowired
+    final
     ResidenceController residenceController;
 
-    @Autowired
+    final
     JdbcTemplate jdbcTemplate;
+
+    public ResidenceHelper(ResidenceController residenceController, JdbcTemplate jdbcTemplate) {
+        this.residenceController = residenceController;
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @CrossOrigin(origins = "*")
     @GetMapping("/list")

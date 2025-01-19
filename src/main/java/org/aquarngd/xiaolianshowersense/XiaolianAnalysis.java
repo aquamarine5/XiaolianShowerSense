@@ -2,16 +2,13 @@ package org.aquarngd.xiaolianshowersense;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import org.aquarngd.xiaolianshowersense.data.WasherStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -54,10 +51,13 @@ public class XiaolianAnalysis {
             if (!residencesLastUsedTime.containsKey(residenceId)) {
                 residencesLastUsedTime.put(residenceId, new HashMap<>());
             }
-            SqlRowSet residenceTimes = jdbcTemplate.queryForRowSet("SELECT lastUsedTime,lastWashTime,deviceId FROM showers WHERE residenceId=?", residenceId);
+            SqlRowSet residenceTimes = jdbcTemplate.queryForRowSet(
+                    "SELECT lastUsedTime,lastWashTime,deviceId FROM showers WHERE residenceId=?", residenceId);
             while (residenceTimes.next()) {
-                residencesLastWashTime.get(residenceId).put(residenceTimes.getInt("deviceId"), residenceTimes.getTimestamp("lastWashTime").getTime());
-                residencesLastUsedTime.get(residenceId).put(residenceTimes.getInt("deviceId"), residenceTimes.getTimestamp("lastUsedTime").getTime());
+                residencesLastWashTime.get(residenceId).put(residenceTimes.getInt("deviceId"),
+                        residenceTimes.getTimestamp("lastWashTime").getTime());
+                residencesLastUsedTime.get(residenceId).put(residenceTimes.getInt("deviceId"),
+                        residenceTimes.getTimestamp("lastUsedTime").getTime());
             }
         }
         logger.warn("residencesMap: {}", residencesMap);
@@ -82,10 +82,11 @@ public class XiaolianAnalysis {
             JSONObject washer = residences.getJSONObject(i);
             int deviceId = washer.getInteger("deviceId");
             int calculatedTime = 0;
-            if (washer.getInteger("deviceStatus") == 2) {
-                long predictedTime = averageWashTime - (System.currentTimeMillis() - residencesLastUsedTime.get(residenceId).get(deviceId));
+            if (washer.getInteger("deviceStatus") == WasherStatus.USING.value()) {
+                long predictedTime = averageWashTime -
+                        (System.currentTimeMillis() - residencesLastUsedTime.get(residenceId).get(deviceId));
                 calculatedTime = predictedTime < 0 ? 5 * 60 : (int) (predictedTime / 1000);
-            } else if (washer.getInteger("deviceStatus") == 1) {
+            } else if (washer.getInteger("deviceStatus") == WasherStatus.NOT_USING.value()) {
                 if (System.currentTimeMillis() - residencesLastWashTime.get(residenceId).get(deviceId) <= 360000) {
                     calculatedTime = 60;
                 }
@@ -139,7 +140,8 @@ public class XiaolianAnalysis {
                     String valueName = String.format("3%s%s",
                             i < 10 ? "0" + i : i,
                             j == 0 ? "00" : j * 10);
-                    jdbcTemplate.update("INSERT INTO analyses (minv,avgv,maxv,timePos,residenceId) VALUES (0,0,0,?,?)", valueName, residenceId);
+                    jdbcTemplate.update(
+                            "INSERT INTO analyses (minv,avgv,maxv,timePos,residenceId) VALUES (0,0,0,?,?)", valueName, residenceId);
                 }
             }
         }

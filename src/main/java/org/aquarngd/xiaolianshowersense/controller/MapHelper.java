@@ -30,6 +30,7 @@ public class MapHelper {
             jsonObject.put("mapdata", JSONArray.parse(sqlRowSet.getString("mapdata")));
             jsonObject.put("contributors", sqlRowSet.getString("contributors"));
             return UnifiedResponse.Success(jsonObject).toJSONString();
-        } else return UnifiedResponse.Failed("No such residence").toJSONString();
+        } else
+            return UnifiedResponse.Failed("No such residence").toJSONString();
     }
 }

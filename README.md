@@ -7,6 +7,8 @@
 > XiaolianShowerSense participated in **Designed an application** and successfully deployed it.
 
 - 适用于任何使用智慧笑联的学校，[http://wash.aquamarine5.fun/](http://wash.aquamarine5.fun/)目前仅适用于河北大学，不过可以更改参数以适配所有宿舍。
+> [!NOTE]
+> 请勿使用HTTPS访问。
 
 ## Changelog
 
@@ -101,6 +103,9 @@ npm run dev
 返回浴室的地图数据（如果存在）。
 - `/analysis?residenceId=${residenceId}`  
 返回浴室的分析数据（若地图数据不存在，则分析数据无效，将返回'x'）。
+- `/analyser_enabled` & `/analyser_disabled`  
+分别启用和禁用分析功能。
+
 
 #### Only for test
 
