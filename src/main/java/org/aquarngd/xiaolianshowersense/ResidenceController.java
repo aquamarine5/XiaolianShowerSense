@@ -67,7 +67,7 @@ public class ResidenceController {
     private void updateShower(JSONObject deviceObject, int residenceId) {
         WasherStatus deviceStatus = WasherStatus.valueOf(deviceObject.getInteger("deviceStatus"));
         int deviceId = deviceObject.getInteger("deviceId");
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT status FROM showers WHERE residenceId=? and deviceId =?", residenceId, deviceId);
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT status,lastUsedTime FROM showers WHERE residenceId=? and deviceId =?", residenceId, deviceId);
         if (rs.next()) {
             if (WasherStatus.valueOf(rs.getByte("status")) == WasherStatus.NOT_USING &&
                     deviceStatus == WasherStatus.USING) {
