@@ -10,20 +10,20 @@
     "deploy": "remote-deploy.cmd"
   },
   "dependencies": {
-    "axios": "^1.8.2",
-    "echarts": "^5.5.1",
-    "element-plus": "^2.8.4",
-    "vue": "^3.4.29"
+    "axios": "^1.11.0",
+    "echarts": "^5.6.0",
+    "element-plus": "^2.11.1",
+    "vue": "^3.5.21"
   },
   "devDependencies": {
-    "@iconify-json/line-md": "^1.2.2",
-    "@iconify-json/mdi": "^1.2.1",
-    "@vitejs/plugin-vue": "^5.0.5",
-    "@vue/compiler-sfc": "^3.5.12",
-    "unplugin-icons": "^0.20.1",
-    "vite": "^5.4.12"
+    "@iconify-json/line-md": "^1.2.11",
+    "@iconify-json/mdi": "^1.2.3",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/compiler-sfc": "^3.5.21",
+    "unplugin-icons": "^0.20.2",
+    "vite": "^5.4.19"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "*"
+    "@rollup/rollup-linux-x64-gnu": "^4.50.0"
   }
 }
