@@ -35,11 +35,11 @@ var showWaitMoreStatus = ref(false)
         <AnalysisDisplayer :wash-avg-time="formatDate(avgWashTimeText)" :use-count="requestTimes"
             :wash-count="washCount" />
         <Sponsor />
-        <Technology/>
+        <Technology />
         <div class="remove_tips">
-                <LineMdFileDocumentMinusTwotone />
-                下面这玩意太丑了 找个时间就删了他🧐
-            </div>
+            <LineMdFileDocumentMinusTwotone />
+            下面这玩意太丑了 找个时间就删了他🧐
+        </div>
         <div class="top_container">
             <div class="suggested_tips">
                 推荐去尝试可能没人的淋浴头：
@@ -87,7 +87,7 @@ var showWaitMoreStatus = ref(false)
             </div>
         </div>
         <div class="app_container">
-            
+
             <!-- <div class="device_container" v-for="device in devicesList">
                 <Device :name="device.name" :id="device.id" :status="device.status" :tme="device.time"
                     :wtime="device.wtime" />
@@ -145,6 +145,7 @@ export default {
                     var out = []
                     for (let index = 1; index < json.length; index++) {
                         let element = json.devices[index]
+                        if (element == undefined) continue;
                         out[index - 1] = {
                             id: index,
                             status: element.status,
@@ -158,6 +159,7 @@ export default {
                     this.requestTimes = json.requestTimes
                     this.devicesList = out;
                     out.forEach(element => {
+                        if (element == undefined) return;
                         if (element.status == 1 && (new Date().getTime() - element.wtime) > 360000) {
                             this.suggestedTryDevicesList.push(element)
                         }
@@ -181,6 +183,7 @@ export default {
                     console.log(json)
                     for (let index = 1; index < json.length; index++) {
                         let element = json.devices[index]
+                        if (element == undefined) continue;
                         this.devicesList[index - 1].status = element.status
                         this.devicesList[index - 1].time = element.time
                     }
@@ -190,6 +193,7 @@ export default {
                     this.suggestedTryDevicesList = []
                     this.suggestedWaitDevicesList = []
                     this.devicesList.forEach(element => {
+                        if (element == undefined) return;
                         if (element.status == 1 && (new Date().getTime() - element.wtime) > 360000) {
                             this.suggestedTryDevicesList.push(element)
                         }
